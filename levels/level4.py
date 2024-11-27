@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Whack-a-Mole game inside the provided surface.
 
@@ -16,12 +16,25 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     # Colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    GRAY = (169, 169, 169)  # Color for the fade effect when mole is clicked
+
+    # Load the gold coin image (ensure the file is present in the correct directory)
+    try:
+        gold_coin_image = pygame.image.load("images/gold_coin.png")
+        gold_coin_image = pygame.transform.scale(gold_coin_image, (75, 75))  # Scale the image to match MOLE_SIZE
+    except pygame.error:
+        print("Error loading gold coin image. Please ensure 'gold_coin.png' exists in the script directory.")
+        pygame.quit()
+        return
 
     # Mole settings
     MOLE_SIZE = 50
     MOLE_APPEAR_TIME = 2.0  # initial time mole stays on screen
     MOLE_MIN_TIME = 0.5     # minimum time mole stays on screen
     SPEED_INCREASE_RATE = 0.95  # Mole appear time decreases by this factor after each mole
+
+    # Reserved area for text (height reserved)
+    RESERVED_HEIGHT = 100
 
     # Fonts
     font = pygame.font.Font(None, 36)
@@ -34,7 +47,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     response_times = []
     correct_hits = 0
     total_moles = 0
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     attempts = 0
 
     # Clock
@@ -61,11 +74,19 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 x -= surface_rect[0]
                 y -= surface_rect[1]
 
-                # Check if the mole was clicked
+                # Check if the mole (coin) was clicked
                 if mole_rect and mole_rect.collidepoint((x, y)):
                     hit_time = current_time - mole_appeared_time
                     response_times.append(hit_time)
                     correct_hits += 1
+
+                    # Show fade effect by changing mole color to gray (dim the coin image)
+                    faded_coin = pygame.Surface((MOLE_SIZE, MOLE_SIZE), pygame.SRCALPHA)
+                    faded_coin.fill((169, 169, 169, 128))  # Light gray with transparency
+                    surface.blit(faded_coin, mole_rect)
+                    pygame.display.update()
+                    pygame.time.wait(150)  # Wait for 150 milliseconds for the fade effect
+
                     mole_rect = None
                     MOLE_APPEAR_TIME *= SPEED_INCREASE_RATE
                     if MOLE_APPEAR_TIME < MOLE_MIN_TIME:
@@ -73,8 +94,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
 
         # Spawn a new mole if there is none on the screen
         if mole_rect is None and current_time >= next_mole_time:
+            # Ensure mole doesn't spawn in the top reserved area (RESERVED_HEIGHT)
             x = random.randint(0, level_width - MOLE_SIZE)
-            y = random.randint(0, level_height - MOLE_SIZE)
+            y = random.randint(RESERVED_HEIGHT, level_height - MOLE_SIZE)
             mole_rect = pygame.Rect(x, y, MOLE_SIZE, MOLE_SIZE)
             mole_appeared_time = current_time
             total_moles += 1
@@ -88,9 +110,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 MOLE_APPEAR_TIME = MOLE_MIN_TIME
             attempts += 1  # Increment attempts when a mole times out
 
-        # Draw mole
+        # Draw mole (gold coin image)
         if mole_rect:
-            pygame.draw.rect(surface, BLACK, mole_rect)
+            surface.blit(gold_coin_image, mole_rect)
 
         # Display stats
         if response_times:

@@ -3,7 +3,7 @@ import random
 import sys
 from pygame.locals import *
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Image Recall Game inside the provided surface.
 
@@ -18,10 +18,10 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     FONT = pygame.font.SysFont(None, 36)
 
     # Load images
-    NUM_IMAGES = 3
+    NUM_IMAGES = 6
     image_list = []
     for i in range(1, NUM_IMAGES + 1):
-        image = pygame.image.load(f'asset/Images/img{i}.png')
+        image = pygame.image.load(f'images/level6/img{i}.png')
         image = pygame.transform.scale(image, (200, 200))  # Resize images
         image_list.append(image)
 
@@ -31,7 +31,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     sequence = []
     selected_images = []
     score = 0
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     attempts = 0
     clock = pygame.time.Clock()
 
@@ -53,20 +53,26 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             pygame.time.wait(display_time)
         show_message('Now recall the images!')
 
-    def selection_screen(sequence_images):
+    def selection_screen(all_images):
         """Allow the player to select images they recall from the sequence."""
         nonlocal selected_images
         selected_images = []
         positions = []
+
+        # Shuffle all images for random order in selection screen
+        random.shuffle(all_images)
+
         margin = 20
-        img_width = (level_width - (len(sequence_images) + 1) * margin) // len(sequence_images)
+        num_images = len(all_images)
+        img_width = (level_width - (num_images + 1) * margin) // num_images
         img_height = img_width  # Keep images square
-        scaled_images = [pygame.transform.scale(img, (img_width, img_height)) for img in sequence_images]
+        scaled_images = [pygame.transform.scale(img, (img_width, img_height)) for img in all_images]
 
         running = True
         while running:
             surface.fill((0, 0, 0))
             positions = []
+
             # Draw images at the bottom
             for i, img in enumerate(scaled_images):
                 x = margin + i * (img_width + margin)
@@ -76,10 +82,6 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 if i in selected_images:
                     pygame.draw.rect(surface, (0, 255, 0), rect, 3)
 
-            # Draw 'Done' button
-            done_text = FONT.render('Done', True, (255, 255, 255))
-            done_rect = done_text.get_rect(center=(level_width - 80, level_height - 30))
-            surface.blit(done_text, done_rect)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -93,37 +95,37 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                     x_click -= surface_rect[0]
                     y_click -= surface_rect[1]
 
-                    # Check if 'Done' button is clicked
-                    if done_rect.collidepoint(x_click, y_click):
+                    # Check if any image is clicked
+                    for idx, rect in enumerate(positions):
+                        if rect.collidepoint(x_click, y_click):
+                            if idx in selected_images:
+                                selected_images.remove(idx)
+                            else:
+                                selected_images.append(idx)
+
+                    # Automatically end selection phase once enough images are selected
+                    if len(selected_images) == sequence_length:
                         running = False
-                    else:
-                        # Check if any image is clicked
-                        for idx, rect in enumerate(positions):
-                            if rect.collidepoint(x_click, y_click):
-                                if idx in selected_images:
-                                    selected_images.remove(idx)
-                                else:
-                                    selected_images.append(idx)
 
     def calculate_score(sequence, selected_indices):
         """Calculate the player's score based on correct selections."""
-        correct_indices = [sequence.index(img) for img in sequence]
-        correct_selections = set(correct_indices) & set(selected_indices)
+        correct_indices = [image_list.index(img) for img in sequence]
+        selected_imgs = [all_images[idx] for idx in selected_indices]
+        correct_selections = set(sequence) & set(selected_imgs)
         return len(correct_selections)
 
     running = True
 
     while running and attempts < max_attempts:
-        # Use the entire image list as the sequence
-        sequence = image_list.copy()
-        random.shuffle(sequence)  # Shuffle the sequence
+        # Generate a random sequence from the image list
+        sequence = random.sample(image_list, sequence_length)
         show_sequence(sequence)
 
         # Player selects images they recall
-        selection_screen(sequence)
+        all_images = image_list.copy()  # All images are available for selection
+        selection_screen(all_images)
 
         # Calculate and display the score
-        # Map selected indices to images
         score = calculate_score(sequence, selected_images)
         update_score_callback(score)  # Update score
         show_message(f'You identified {score}/{sequence_length} images correctly!')

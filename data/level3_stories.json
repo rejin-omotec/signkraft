@@ -1,0 +1,338 @@
+[
+    {
+        "language": "Hindi",
+        "title": "किसान और मुर्गी",
+        "audio": "sounds/level3/hindi_story1.mp3",
+        "content": "एक गाँव में एक किसान रहता था। उसके पास एक सुनहरी अंडे देने वाली मुर्गी थी। वह रोज़ एक सुनहरा अंडा पाता और उसे बेचकर अपना गुज़ारा करता। लेकिन वह लालची था और एक दिन उसने सोचा, क्यों न मुर्गी को मारकर सारे अंडे एक साथ ले लूँ। उसने ऐसा ही किया, लेकिन उसे कुछ नहीं मिला। वह पछताने लगा।",
+        "questions": [
+            {
+                "question": "किसान के पास कौन सा जानवर था?",
+                "options": ["गाय", "मुर्गी", "बकरी", "भेड़"],
+                "answer": "मुर्गी"
+            },
+            {
+                "question": "मुर्गी कैसे अंडे देती थी?",
+                "options": ["साधारण अंडे", "सुनहरे अंडे", "चाँदी के अंडे", "हीरे के अंडे"],
+                "answer": "सुनहरे अंडे"
+            },
+            {
+                "question": "किसान ने मुर्गी के साथ क्या किया?",
+                "options": ["उसे बेचा", "उसे मार दिया", "उसे खाना दिया", "उसे छोड़ दिया"],
+                "answer": "उसे मार दिया"
+            },
+            {
+                "question": "कहानी से हमें क्या शिक्षा मिलती है?",
+                "options": ["लालच बुरी बला है", "मेहनत का फल मीठा होता है", "समय अमूल्य है", "दोस्तों की मदद करें"],
+                "answer": "लालच बुरी बला है"
+            }
+        ]
+    },
+    {
+        "language": "Hindi",
+        "title": "सिंह और चूहा",
+        "audio": "sounds/level3/hindi_story2.mp3",
+        "content": "एक बार एक सिंह गहरी नींद में सो रहा था। एक छोटा चूहा उसके ऊपर दौड़ रहा था। सिंह जागा और उसे पकड़ लिया। चूहे ने माफी मांगी और कहा कि वह भविष्य में उसकी मदद करेगा। सिंह ने उसे छोड़ दिया। कुछ दिनों बाद, सिंह एक जाल में फँस गया। चूहे ने अपने नुकीले दाँतों से जाल काटकर सिंह को आज़ाद किया।",
+        "questions": [
+            {
+                "question": "सिंह किसकी वजह से जागा?",
+                "options": ["एक चिड़िया", "एक हाथी", "एक चूहा", "एक खरगोश"],
+                "answer": "एक चूहा"
+            },
+            {
+                "question": "चूहे ने सिंह से क्या वादा किया?",
+                "options": ["खाना लाने का", "मदद करने का", "जंगल छोड़ने का", "दोस्ती करने का"],
+                "answer": "मदद करने का"
+            },
+            {
+                "question": "सिंह को किसने आज़ाद किया?",
+                "options": ["हाथी", "चूहे", "शिकारी", "किसान"],
+                "answer": "चूहे"
+            },
+            {
+                "question": "इस कहानी का नैतिक क्या है?",
+                "options": ["छोटे मित्र भी मददगार हो सकते हैं", "लालच बुरी बला है", "धीरे और स्थिर चलो", "साहस महत्त्वपूर्ण है"],
+                "answer": "छोटे मित्र भी मददगार हो सकते हैं"
+            }
+        ]
+    },
+    {
+        "language": "Hindi",
+        "title": "कछुआ और खरगोश",
+        "audio": "sounds/level3/hindi_story3.mp3",
+        "content": "एक बार एक कछुए और एक खरगोश में दौड़ की प्रतियोगिता हुई। खरगोश तेज दौड़ता था और कछुआ धीरे चलता था। बीच रास्ते में खरगोश ने सोचा कि वह आराम कर सकता है, क्योंकि कछुआ बहुत पीछे है। वह सो गया। कछुआ लगातार चलता रहा और अंत में जीत गया।",
+        "questions": [
+            {
+                "question": "दौड़ में कौन-कौन शामिल थे?",
+                "options": ["सिंह और चूहा", "कछुआ और खरगोश", "किसान और मुर्गी", "बाघ और बकरी"],
+                "answer": "कछुआ और खरगोश"
+            },
+            {
+                "question": "खरगोश ने बीच रास्ते में क्या किया?",
+                "options": ["आराम किया", "दौड़ता रहा", "खाना खाया", "घर चला गया"],
+                "answer": "आराम किया"
+            },
+            {
+                "question": "दौड़ कौन जीता?",
+                "options": ["खरगोश", "कछुआ", "सिंह", "चूहा"],
+                "answer": "कछुआ"
+            },
+            {
+                "question": "कहानी से हमें क्या सीख मिलती है?",
+                "options": ["धीरे और स्थिर चलो", "तेज़ दौड़ो", "आराम ज़रूरी है", "दोस्तों की मदद करें"],
+                "answer": "धीरे और स्थिर चलो"
+            }
+        ]
+    },
+    {
+        "language": "Hindi",
+        "title": "दोस्ती की शक्ति",
+        "audio": "sounds/level3/hindi_story4.mp3",
+        "content": "एक जंगल में चार मित्र रहते थे: एक कौवा, एक चूहा, एक कछुआ और एक हिरण। एक दिन हिरण शिकारी के जाल में फँस गया। उसके मित्रों ने मिलकर उसे बचाया। उन्होंने मिलकर योजना बनाई और हिरण को आज़ाद करा लिया।",
+        "questions": [
+            {
+                "question": "कितने मित्र थे इस कहानी में?",
+                "options": ["दो", "तीन", "चार", "पाँच"],
+                "answer": "चार"
+            },
+            {
+                "question": "कौन जाल में फँस गया था?",
+                "options": ["कौवा", "चूहा", "कछुआ", "हिरण"],
+                "answer": "हिरण"
+            },
+            {
+                "question": "मित्रों ने क्या किया?",
+                "options": ["मदद की", "भाग गए", "शिकारी को बुलाया", "कुछ नहीं किया"],
+                "answer": "मदद की"
+            },
+            {
+                "question": "कहानी से हमें क्या शिक्षा मिलती है?",
+                "options": ["एकता में शक्ति है", "लालच बुरी बला है", "समय अमूल्य है", "मेहनत का फल मीठा होता है"],
+                "answer": "एकता में शक्ति है"
+            }
+        ]
+    },
+    {
+        "language": "Hindi",
+        "title": "नन्हीं चींटी",
+        "audio": "sounds/level3/hindi_story5.mp3",
+        "content": "एक नन्हीं चींटी अपने भोजन की तलाश में थी। उसने एक रोटी का टुकड़ा देखा लेकिन वह भारी था। उसने अन्य चींटियों को बुलाया और सबने मिलकर उसे उठाया। वे भोजन को अपने घर ले गए और सबने मिलकर खाया।",
+        "questions": [
+            {
+                "question": "चींटी ने क्या पाया?",
+                "options": ["शक्कर", "रोटी का टुकड़ा", "केला", "सेब"],
+                "answer": "रोटी का टुकड़ा"
+            },
+            {
+                "question": "रोटी का टुकड़ा कैसा था?",
+                "options": ["छोटा", "हल्का", "भारी", "गंदा"],
+                "answer": "भारी"
+            },
+            {
+                "question": "चींटी ने क्या किया?",
+                "options": ["अकेले उठाया", "छोड़ दिया", "अन्य चींटियों को बुलाया", "खा लिया"],
+                "answer": "अन्य चींटियों को बुलाया"
+            },
+            {
+                "question": "कहानी से क्या सीख मिलती है?",
+                "options": ["मिलजुलकर काम करना चाहिए", "अकेले रहना अच्छा है", "भोजन बाँटना नहीं चाहिए", "जल्दी सो जाना चाहिए"],
+                "answer": "मिलजुलकर काम करना चाहिए"
+            }
+        ]
+    },
+    {
+        "language": "Hindi",
+        "title": "सच्चा मित्र",
+        "audio": "sounds/level3/hindi_story6.mp3",
+        "content": "दो मित्र जंगल से गुजर रहे थे। अचानक उन्हें एक भालू दिखा। एक मित्र पेड़ पर चढ़ गया। दूसरा नीचे रह गया। उसने सुनहरा किया और ज़मीन पर लेट गया। भालू ने उसे सूँघा और चला गया। पेड़ पर बैठे मित्र ने पूछा, 'भालू ने तुम्हारे कान में क्या कहा?' उसने जवाब दिया, 'सच्चे मित्र संकट में साथ नहीं छोड़ते।'",
+        "questions": [
+            {
+                "question": "दोस्त कहाँ से गुजर रहे थे?",
+                "options": ["गाँव से", "जंगल से", "नदी से", "शहर से"],
+                "answer": "जंगल से"
+            },
+            {
+                "question": "उन्हें कौन सा जानवर दिखा?",
+                "options": ["शेर", "भालू", "भेड़िया", "साँप"],
+                "answer": "भालू"
+            },
+            {
+                "question": "दूसरे मित्र ने क्या सीखा?",
+                "options": ["सच्ची दोस्ती", "भालू की भाषा", "पेड़ पर चढ़ना", "भागना"],
+                "answer": "सच्ची दोस्ती"
+            },
+            {
+                "question": "कहानी का मुख्य संदेश क्या है?",
+                "options": ["संकट में मित्र की मदद करें", "भाग जाना चाहिए", "शांत रहना चाहिए", "जानवरों से दूर रहें"],
+                "answer": "संकट में मित्र की मदद करें"
+            }
+        ]
+    },
+    {
+        "language": "English",
+        "title": "The Little Bird",
+        "audio": "sounds/level3/story1.mp3",
+        "content": "Lily saw a small bird with an injured wing in her garden. She gently picked it up and brought it inside. She made a soft bed for the bird and fed it some water. After a few days, the bird’s wing healed, and it flew away. Lily felt happy knowing she had helped a little creature.",
+        "questions": [
+            {
+                "question": "What did Lily find in her garden?",
+                "options": ["A small bird with an injured wing", "A lost kitten", "A broken toy", "A butterfly with torn wings"],
+                "answer": "A small bird with an injured wing"
+            },
+            {
+                "question": "How did Lily help the bird?",
+                "options": ["She built a birdhouse for it", "She taught it how to sing", "She made a bed for it and gave it water", "She called a vet to perform surgery"],
+                "answer": "She made a bed for it and gave it water"
+            },
+            {
+                "question": "What happened after a few days?",
+                "options": ["The bird turned into a pet and stayed with Lily", "The bird’s wing healed, and it flew away", "The bird laid eggs in Lily's house", "The bird's wing never healed, and it couldn't fly"],
+                "answer": "The bird’s wing healed, and it flew away"
+            },
+            {
+                "question": "How did Lily feel after helping the bird?",
+                "options": ["She felt happy", "She felt sad because the bird didn’t stay", "She felt angry because it made a mess", "She felt scared of birds afterward"],
+                "answer": "She felt happy"
+            }
+        ]
+    },
+    {
+        "language": "English",
+        "title": "The Lost Pencil",
+        "audio": "sounds/level3/story2.mp3",
+        "content": "Tom couldn’t find his favorite pencil during class. He checked his bag, desk, and even the floor. Finally, his friend Mia tapped his shoulder and handed him the pencil. 'You dropped it earlier,' she said. Tom thanked Mia and realized how helpful friends can be.",
+        "questions": [
+            {
+                "question": "What was Tom looking for?",
+                "options": ["His favorite pencil", "His notebook", "His lunchbox", "His eraser"],
+                "answer": "His favorite pencil"
+            },
+            {
+                "question": "Where did Tom look for the pencil?",
+                "options": ["In his bag, desk, and on the floor", "In the library", "Under the teacher’s desk", "In the schoolyard"],
+                "answer": "In his bag, desk, and on the floor"
+            },
+            {
+                "question": "Who found the pencil?",
+                "options": ["Tom’s friend, Mia", "Tom’s teacher", "Tom himself", "Another student, Alex"],
+                "answer": "Tom’s friend, Mia"
+            },
+            {
+                "question": "What did Tom realize?",
+                "options": ["Friends can be very helpful", "He needs to buy a new pencil", "It’s easy to lose things", "Mia often loses her things too"],
+                "answer": "Friends can be very helpful"
+            }
+        ]
+    },
+    {
+        "language": "English",
+        "title": "The Missing Cat",
+        "audio": "sounds/level3/story3.mp3",
+        "content": "Ella couldn’t find her cat, Snowy. She searched the whole house but didn’t see him anywhere. Finally, she heard a soft meow from the closet. When she opened the door, there was Snowy, curled up on a pile of blankets. Ella laughed and hugged her cat, glad he was safe.",
+        "questions": [
+            {
+                "question": "What was Ella looking for?",
+                "options": ["Her cat, Snowy", "Her dog, Buddy", "Her favorite book", "Her phone"],
+                "answer": "Her cat, Snowy"
+            },
+            {
+                "question": "Where did Ella hear the meow?",
+                "options": ["From the closet", "From under the bed", "Outside in the garden", "In the kitchen"],
+                "answer": "From the closet"
+            },
+            {
+                "question": "Where was Snowy hiding?",
+                "options": ["On a pile of blankets in the closet", "Under the sofa", "Behind the refrigerator", "In the laundry basket"],
+                "answer": "On a pile of blankets in the closet"
+            },
+            {
+                "question": "How did Ella feel when she found Snowy?",
+                "options": ["She was happy and relieved", "She was angry", "She was scared", "She felt confused"],
+                "answer": "She was happy and relieved"
+            }
+        ]
+    },
+    {
+        "language": "English",
+        "title": "The Kind Neighbor",
+        "audio": "sounds/level3/story4.mp3",
+        "content": "Sally saw her elderly neighbor, Mr. Jones, struggling to carry groceries. Without thinking twice, she ran over to help him. Mr. Jones smiled and thanked her. The next day, he brought Sally some homemade cookies to show his appreciation. Sally learned that small acts of kindness can bring joy to others.",
+        "questions": [
+            {
+                "question": "Who needed help with groceries?",
+                "options": ["Jones, Sally’s neighbor", "Sally's friend, Emma", "A delivery driver", "Her younger brother"],
+                "answer": "Jones, Sally’s neighbor"
+            },
+            {
+                "question": "What did Sally do to help?",
+                "options": ["She helped carry the groceries", "She paid for the groceries", "She walked Mr. Jones' dog", "She cleaned Mr. Jones’ house"],
+                "answer": "She helped carry the groceries"
+            },
+            {
+                "question": "How did Mr. Jones thank Sally?",
+                "options": ["He brought her homemade cookies", "He gave her a thank-you card", "He took her to the park", "He helped her with homework"],
+                "answer": "He brought her homemade cookies"
+            },
+            {
+                "question": "What did Sally learn from this experience?",
+                "options": ["Small acts of kindness bring joy to others", "Groceries are heavy", "It’s important to study hard", "Neighbors can be very noisy"],
+                "answer": "Small acts of kindness bring joy to others"
+            }
+        ]
+    },
+    {
+        "language": "English",
+        "title": "The Lost Ball",
+        "audio": "sounds/level3/story5.mp3",
+        "content": "Ben was playing with his red ball in the park. Suddenly, he kicked it too hard, and it rolled into the bushes. Ben searched everywhere but couldn’t find it. Just as he was about to give up, a dog came running out of the bushes with the ball in its mouth. The dog’s owner smiled and handed the ball back to Ben. Ben thanked them and learned to be more careful next time.",
+        "questions": [
+            {
+                "question": "What was Ben playing with?",
+                "options": ["A red ball", "A blue frisbee", "A soccer ball", "A tennis racket"],
+                "answer": "A red ball"
+            },
+            {
+                "question": "Where did the ball go?",
+                "options": ["It rolled into the bushes", "It went into the river", "It got stuck in a tree", "It rolled under a bench"],
+                "answer": "It rolled into the bushes"
+            },
+            {
+                "question": "Who found the ball?",
+                "options": ["A dog found the ball", "A squirrel", "A park ranger", "Ben’s friend, Jack"],
+                "answer": "A dog found the ball"
+            },
+            {
+                "question": "What lesson did Ben learn?",
+                "options": ["To be more careful when playing", "Not to play with toys", "To always bring extra balls", "To be more careful when playing"],
+                "answer": "To be more careful when playing"
+            }
+        ]
+    },
+    {
+        "language": "English",
+        "title": "The Lost Wallet",
+        "audio": "sounds/level3/story6.mp3",
+        "content": "Anna was walking to the grocery store when she noticed a wallet on the sidewalk. She picked it up and looked inside—there was an ID, some cash, and a picture of a little girl. Instead of keeping it, she decided to find the owner. She visited the address on the ID and knocked on the door. A worried man opened it. When Anna returned the wallet, the man’s eyes filled with tears. 'Thank you! That picture is the only one I have of my daughter, who passed away.'",
+        "questions": [
+            {
+                "question": "What did Anna find on the sidewalk?",
+                "options": ["A wallet", "A lost shoe", "A shopping bag", "A cell phone"],
+                "answer": "A wallet"
+            },
+            {
+                "question": "What was inside the wallet?",
+                "options": ["An ID, cash, and a picture of a little girl", "A receipt, a ticket, and a note", "A credit card and a bus pass", "A set of keys and some coins"],
+                "answer": "An ID, cash, and a picture of a little girl"
+            },
+            {
+                "question": "How did Anna find the owner?",
+                "options": ["She went to the address on the ID", "She called the phone number on the wallet", "She posted about it on social media", "She asked a nearby storekeeper"],
+                "answer": "She went to the address on the ID"
+            },
+            {
+                "question": "Why was the picture important to the wallet's owner?",
+                "options": ["It was the only picture he had of his late daughter", "It was a picture of his wife", "It was the only picture of his childhood", "It was the only picture he had of his late mother"],
+                "answer": "It was the only picture he had of his late daughter"
+            }
+        ]
+    }
+]

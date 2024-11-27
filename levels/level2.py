@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Cause and Effect MCQ game inside the provided surface.
 
@@ -48,7 +48,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     feedback = ""
     feedback_time = 0
     attempts = 0
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     weights = [1.0, 1.5, 2.0]  # Increasing weights for each attempt
     results = []
 

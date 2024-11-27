@@ -3,7 +3,7 @@ import sys
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Memory Sequence Game inside the provided surface.
 
@@ -24,10 +24,10 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
 
     # Define shapes with positions and colors
     shapes = [
-        {'color': RED, 'rect': pygame.Rect(50, 50, 200, 200), 'sound': 'asset/game5/sound1.wav'},
-        {'color': GREEN, 'rect': pygame.Rect(level_width - 250, 50, 200, 200), 'sound': 'asset/game5/sound2.wav'},
-        {'color': BLUE, 'rect': pygame.Rect(50, level_height - 250, 200, 200), 'sound': 'asset/game5/sound3.wav'},
-        {'color': YELLOW, 'rect': pygame.Rect(level_width - 250, level_height - 250, 200, 200), 'sound': 'asset/game5/sound4.wav'},
+        {'color': RED, 'rect': pygame.Rect(50, 50, 200, 200), 'sound': 'sounds/sound1.wav'},
+        {'color': GREEN, 'rect': pygame.Rect(level_width - 250, 50, 200, 200), 'sound': 'sounds/sound2.wav'},
+        {'color': BLUE, 'rect': pygame.Rect(50, level_height - 250, 200, 200), 'sound': 'sounds/sound3.wav'},
+        {'color': YELLOW, 'rect': pygame.Rect(level_width - 250, level_height - 250, 200, 200), 'sound': 'sounds/sound4.wav'},
     ]
 
     # Load sounds
@@ -94,7 +94,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     # Main game loop
     sequence = []
     level = 1
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     attempts = 0
     running = True
 

@@ -3,7 +3,7 @@ import sys
 import random
 import math
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Shape Orientation Game inside the provided surface.
 
@@ -47,7 +47,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     font = pygame.font.SysFont(None, 48)
 
     # Limit the number of attempts
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     attempts = 0
     score = 0
 

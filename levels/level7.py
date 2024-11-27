@@ -3,7 +3,7 @@ import sys
 import threading
 import speech_recognition as sr
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Image Description Game with Speech and Scoring inside the provided surface.
 
@@ -16,7 +16,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     """
     # Load the image (make sure it exists or replace with your image file)
     try:
-        image = pygame.image.load('asset/imagedef/img1.png')
+        image = pygame.image.load('images/level7/img1.png')
     except pygame.error:
         print("Unable to load image. Please ensure the file exists.")
         pygame.quit()
@@ -41,7 +41,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     error_message = ''
     score = None
     matched_keywords = []
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     attempts = 0
     clock = pygame.time.Clock()
 
