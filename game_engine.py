@@ -9,15 +9,17 @@ def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
     :param initial_score: Initial score passed from the main menu.
     :return: Final score after all levels.
     """
+    max_attempts = 3
+
     levels = [
-        {"name": "Level 1", "module": "levels.level1"},
-        {"name": "Level 2", "module": "levels.level2"},
-        {"name": "Level 3", "module": "levels.level3"},
+        # {"name": "Level 1", "module": "levels.level1"},
+        # {"name": "Level 2", "module": "levels.level2"},
+        # {"name": "Level 3", "module": "levels.level3"},
         {"name": "Level 4", "module": "levels.level4"},
-        {"name": "Level 5", "module": "levels.level5"},
-        {"name": "Level 6", "module": "levels.level6"},
-        {"name": "Level 7", "module": "levels.level7"},
-        {"name": "Level 8", "module": "levels.level8"},
+        # {"name": "Level 5", "module": "levels.level5"},
+        # {"name": "Level 6", "module": "levels.level6"},
+        # {"name": "Level 7", "module": "levels.level7"},
+        # {"name": "Level 8", "module": "levels.level8"},
     ]
 
     win_width, win_height = screen.get_size()
@@ -37,6 +39,8 @@ def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
             print(f"Current Score: {current_score}")
 
         # Run the level
-        level_module.run_game(screen, update_score, WIDTH, GAME_HEIGHT, win_width, win_height)
+        result_list = level_module.run_game(screen, update_score, WIDTH, GAME_HEIGHT, win_width, win_height, max_attempts)
+        print(result_list)
+        # ["Cause and Effect", weights[attempts], correct, time_taken, 60]
 
     return current_score

@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
     """
@@ -48,6 +49,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     feedback_time = 0
     attempts = 0
     max_attempts = 3
+    weights = [1.0, 1.5, 2.0]  # Increasing weights for each attempt
+    results = []
 
     # Helper function to generate options
     def generate_options(correct_cause, all_causes, num_options=4):
@@ -65,6 +68,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     all_causes = [pair[0] for pair in cause_effect_pairs]
 
     while running and attempts < max_attempts:
+        start_time = time.time()  # Start timing the attempt
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -90,12 +95,17 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                                 selected_option = options[idx]
                                 # Check the user's answer
                                 correct_cause, effect = cause_effect_pairs[current_index]
+                                time_taken = time.time() - start_time  # Calculate time taken
+
                                 if selected_option == correct_cause:
                                     feedback = "Correct!"
                                     score += 1
                                     update_score_callback(1)  # Update global score
+                                    results.append(["Cause and Effect", weights[attempts], 1, time_taken, 60])
                                 else:
                                     feedback = f"Incorrect! The correct cause was: {correct_cause}"
+                                    results.append(["Cause and Effect", weights[attempts], 0, time_taken, 60])
+
                                 show_feedback = True
                                 feedback_time = pygame.time.get_ticks()
                                 attempts += 1  # Increment the number of attempts
@@ -141,8 +151,16 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             # End the game
             running = False
 
+        # Check if the attempt has exceeded 60 seconds
+        if time.time() - start_time > 60 and not show_feedback:
+            # Record timeout as an incorrect attempt
+            results.append(["Cause and Effect", weights[attempts], 0, 60, 60])
+            attempts += 1
+            current_index += 1
+            options_generated = False
+
         pygame.display.update()
         clock.tick(30)
 
-    # Return the score and the number of correct attempts
-    return score, attempts
+    # Return detailed results for each attempt
+    return results

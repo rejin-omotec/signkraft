@@ -1,7 +1,8 @@
 import pygame
 import random
+import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height):
+def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Memory Recall game inside the given surface.
 
@@ -58,12 +59,17 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     def get_player_input(sequence_length):
         """Capture player's input sequence."""
         input_sequence = []
+        start_time = time.time()
 
         while len(input_sequence) < sequence_length:
+            elapsed_time = time.time() - start_time
+            if elapsed_time > 60:  # If more than 60 seconds, time out
+                return None, elapsed_time
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    return None
+                    return None, elapsed_time
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # Translate mouse position to the subsurface coordinates
@@ -100,7 +106,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             for shape in shapes:
                 draw_shape(shape, WHITE)
             pygame.display.update()
-        return input_sequence
+
+        return input_sequence, time.time() - start_time
 
     # Game loop variables
     initial_sequence_length = 3
@@ -110,24 +117,30 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     correct_counter = 0
     incorrect_counter = 0
     running = True
-    max_attempts = 3
+    max_attempts = max_attempts_arg
     attempts = 0
+    weights = [1.0, 1.5, 2.0]  # Weights for each attempt, increasing with each attempt as they become harder
+    results = []
 
     while running and attempts < max_attempts:
         # Show the sequence
         show_sequence(sequence)
 
         # Get player's input
-        player_input = get_player_input(len(sequence))
-        if player_input is None:
-            running = False
-            break
+        player_input, time_taken = get_player_input(len(sequence))
+        if player_input is None:  # User quits or times out
+            results.append(["Memory Recall", weights[attempts], 0, 1, time_taken, 60])
+            attempts += 1
+            continue
 
         # Check if the player's input matches the sequence
         if player_input == sequence:
             score += 1
             correct_counter += 1
             update_score_callback(score)  # Update the main menu score
+            
+            # Record result as correct attempt
+            results.append(["Memory Recall", weights[attempts], 1, 0, time_taken, 60])
             
             # Generate a new sequence with one additional random shape
             sequence_length += 1
@@ -142,6 +155,10 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             pygame.time.wait(1000)
         else:
             incorrect_counter += 1
+            # Record result as incorrect attempt
+            results.append(["Memory Recall", weights[attempts], 0, 1, time_taken, 60])
+
+            # Display feedback for incorrect answer
             surface.fill(BLACK)
             font = pygame.font.SysFont(None, 35)
             text = font.render("Incorrect!", True, RED)
@@ -152,4 +169,4 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         attempts += 1
 
     print("ending")
-    return correct_counter, incorrect_counter
+    return results
