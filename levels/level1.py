@@ -16,8 +16,11 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     # Define colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    GRAY = (169, 169, 169)
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
+    BLUE = (0, 0, 255)
+    YELLOW = (255, 255, 0)
 
     # Define shapes and their positions based on the level dimensions
     shape_size = 100
@@ -26,6 +29,13 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         'circle': (level_width // 4, level_height // 2),
         'square': (level_width // 2, level_height // 2),
         'triangle': (3 * level_width // 4, level_height // 2)
+    }
+
+    # Define colors for each shape
+    shape_colors = {
+        'circle': BLUE,
+        'square': YELLOW,
+        'triangle': RED
     }
 
     def draw_shape(shape, color):
@@ -49,7 +59,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         """Show the sequence to the player one shape at a time."""
         for shape in sequence:
             surface.fill(BLACK)
-            draw_shape(shape, WHITE)
+            draw_shape(shape, shape_colors[shape])
             pygame.display.update()
             pygame.time.wait(1000)  # Show each shape for 1 second
             surface.fill(BLACK)
@@ -90,21 +100,39 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                             distance = ((x - sx) ** 2 + (y - sy) ** 2) ** 0.5
                             if distance <= shape_size // 2:
                                 input_sequence.append('circle')
+                                # Show click animation (fade to gray for the clicked shape)
+                                surface.fill(BLACK)
+                                for s in shapes:
+                                    draw_shape(s, GRAY if s == shape else shape_colors[s])
+                                pygame.display.update()
+                                pygame.time.wait(200)
                         elif shape == 'square':
                             # Rectangular collision detection depends on the size
                             rect = pygame.Rect(sx - shape_size // 2, sy - shape_size // 2, shape_size, shape_size)
                             if rect.collidepoint(x, y):
                                 input_sequence.append('square')
+                                # Show click animation (fade to gray for the clicked shape)
+                                surface.fill(BLACK)
+                                for s in shapes:
+                                    draw_shape(s, GRAY if s == shape else shape_colors[s])
+                                pygame.display.update()
+                                pygame.time.wait(200)
                         elif shape == 'triangle':
                             # Use a rectangular bounding box for the triangle
                             rect = pygame.Rect(sx - shape_size // 2, sy - shape_size // 2, shape_size, shape_size)
                             if rect.collidepoint(x, y):
                                 input_sequence.append('triangle')
+                                # Show click animation (fade to gray for the clicked shape)
+                                surface.fill(BLACK)
+                                for s in shapes:
+                                    draw_shape(s, GRAY if s == shape else shape_colors[s])
+                                pygame.display.update()
+                                pygame.time.wait(200)
 
             # Redraw shapes for user feedback
             surface.fill(BLACK)
             for shape in shapes:
-                draw_shape(shape, WHITE)
+                draw_shape(shape, shape_colors[shape])
             pygame.display.update()
 
         return input_sequence, time.time() - start_time
