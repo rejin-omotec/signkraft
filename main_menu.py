@@ -1,3 +1,5 @@
+import os
+import csv
 import pygame
 import game_engine  # Import the game engine
 
@@ -25,6 +27,53 @@ player_age = ""
 game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
 current_score = 0
 current_game_name = "Game Hub"
+
+csv_file_path = ""
+
+def setup_player_folder_and_csv(name):
+    global csv_file_path
+    """
+    Creates a folder and CSV file for the player's name if it doesn't exist.
+    If the folder and file exist, opens the CSV file for appending.
+    """
+    # Convert the name to lowercase and strip spaces
+    normalized_name = name.strip().lower()
+    base_dir = "test_data"
+    player_folder = os.path.join(base_dir, normalized_name)
+
+    # Ensure the base directory exists
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+
+    # Create player folder if it doesn't exist
+    if not os.path.exists(player_folder):
+        os.makedirs(player_folder)
+        print(f"Folder created: {player_folder}")
+
+    # CSV file path
+    csv_file_path = os.path.join(player_folder, f"{normalized_name}.csv")
+
+    # Check if the file exists
+    if not os.path.exists(csv_file_path):
+        # Create the CSV file and write headers
+        with open(csv_file_path, mode="w", newline="") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(["Game Name", "Weight","Correct","Incorrect","Time Taken", "Total Time"])  # Headers
+            # ["Cause and Effect", weights[attempts], correct, incorrect, time_taken, 60]
+            print(f"CSV file created: {csv_file_path}")
+    else:
+        # If the file exists, add an empty line
+        with open(csv_file_path, mode="a", newline="") as csv_file:
+            csv_file.write("\n")  # Adds a blank line
+            print(f"Empty line added to existing CSV: {csv_file_path}")
+
+    # Open the CSV file for appending
+    csv_file = open(csv_file_path, mode="a", newline="")
+    csv_writer = csv.writer(csv_file)
+    print(f"CSV file opened for appending: {csv_file_path}")
+
+    return csv_writer, csv_file_path
+
 
 def draw_main_menu(screen):
     """
@@ -81,6 +130,9 @@ def draw_main_menu(screen):
                     input_active["age"] = True
                 elif start_button.collidepoint(x, y):
                     if player_name and player_age.isdigit():
+                        # Create folder and CSV for the player
+                        csv_writer, csv_file_path = setup_player_folder_and_csv(player_name)
+                        print(f"CSV Writer ready: {csv_file_path}")
                         game_state = "GAMEPLAY"
 
             if event.type == pygame.KEYDOWN:
@@ -97,6 +149,7 @@ def draw_main_menu(screen):
 
         pygame.display.update()
 
+
 def draw_status_bar(screen):
     """
     Draws the status bar at the top of the screen during gameplay.
@@ -108,6 +161,7 @@ def draw_status_bar(screen):
     screen.blit(score_text, (20, 15))
     screen.blit(game_name_text, (WIDTH - game_name_text.get_width() - 20, 15))
 
+
 def draw_bottom_bar(screen):
     """
     Draws the bottom bar at the bottom of the screen during gameplay.
@@ -115,7 +169,9 @@ def draw_bottom_bar(screen):
     # Bottom Bar
     pygame.draw.rect(screen, BLUE, (0, HEIGHT - 50, WIDTH, 50))
 
+
 def main():
+    global csv_file_path
     """
     Main function to manage the game loop and states.
     """
@@ -140,7 +196,7 @@ def main():
             game_surface = screen.subsurface(game_area)
 
             # Pass control to the game engine (only the game area is passed)
-            current_score = game_engine.run(game_surface, player_name, player_age, current_score, WIDTH, GAME_HEIGHT)
+            current_score = game_engine.run(game_surface, player_name, player_age, current_score, csv_file_path, WIDTH, GAME_HEIGHT)
             game_state = "END_SCREEN"
         elif game_state == "END_SCREEN":
             # Display the end screen
@@ -165,6 +221,7 @@ def main():
                         game_state = "MAIN_MENU"
 
             pygame.display.update()
+
 
 if __name__ == "__main__":
     main()
