@@ -136,6 +136,88 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             pygame.display.update()
 
         return input_sequence, time.time() - start_time
+    
+    def render_text(surface, text, font, color, x, y, max_width):
+        """
+        Helper function to render text with word wrapping.
+        """
+        words = text.split(' ')
+        lines = []
+        current_line = ""
+
+        for word in words:
+            if font.size(current_line + word)[0] <= max_width:
+                current_line += word + " "
+            else:
+                lines.append(current_line)
+                current_line = word + " "
+
+        if current_line:
+            lines.append(current_line)
+
+        for line in lines:
+            text_surface = font.render(line, True, color)
+            surface.blit(text_surface, (x, y))
+            y += font.get_linesize() + 5
+    
+
+    # Main instruction screen function
+    def instruction_screen(surface, screen_width, screen_height):
+        """
+        Displays the instruction screen.
+
+        :param surface: The Pygame surface where the instructions will be displayed.
+        :param screen_width: The width of the screen.
+        :param screen_height: The height of the screen.
+        """
+        # Colors and Fonts
+        WHITE = (255, 255, 255)
+        BLUE = (0, 0, 255)
+        BLACK = (0, 0, 0)
+        RED = (255, 0, 0)
+
+        title_font = pygame.font.SysFont(None, 50)
+        text_font = pygame.font.SysFont(None, 30)
+
+        # Instruction text
+        instructions = (
+            "1. The game will display a series of shapes in a specific order. ",
+            "2. Pay attention to the shapes and the order they appear in. ",
+            "3. You must select the shapes in the same order when prompted."
+        )
+
+        # Flag to keep the screen running
+        running = True
+
+        while running:
+            surface.fill(WHITE)
+
+            # Title
+            title_text = title_font.render("Game Instructions", True, BLUE)
+            surface.blit(title_text, (screen_width // 2 - title_text.get_width() // 2, 50))
+
+            # Render each line of instructions
+            y_offset = 150  # Starting y position for the instructions
+            for line in instructions:
+                render_text(surface, line, text_font, BLACK, 50, y_offset, screen_width - 100)
+                y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
+
+            # Navigation instructions
+            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
+            surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
+
+            # Event Handling
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:  # Proceed to the game
+                        running = False
+
+            # Update the screen
+            pygame.display.flip()
+
+
 
     # Game loop variables
     initial_sequence_length = 3
@@ -149,6 +231,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     attempts = 0
     weights = [1.0, 1.5, 2.0]  # Weights for each attempt, increasing with each attempt as they become harder
     results = []
+
+    instruction_screen(surface, win_width, win_height)
 
     while running and attempts < max_attempts:
         # Show the sequence

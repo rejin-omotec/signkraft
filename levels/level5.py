@@ -60,6 +60,29 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             pygame.display.flip()
             time.sleep(0.2)
 
+    def render_text(surface, text, font, color, x, y, max_width):
+        """
+        Helper function to render text with word wrapping.
+        """
+        words = text.split(' ')
+        lines = []
+        current_line = ""
+
+        for word in words:
+            if font.size(current_line + word)[0] <= max_width:
+                current_line += word + " "
+            else:
+                lines.append(current_line)
+                current_line = word + " "
+
+        if current_line:
+            lines.append(current_line)
+
+        for line in lines:
+            text_surface = font.render(line, True, color)
+            surface.blit(text_surface, (x, y))
+            y += font.get_linesize() + 5
+
     def get_player_input(sequence):
         """Get and validate the player's input."""
         input_sequence = []
@@ -91,12 +114,70 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             pygame.display.flip()
         return True
 
+    def instruction_screen(surface, screen_width, screen_height):
+        """
+        Displays the instruction screen.
+
+        :param surface: The Pygame surface where the instructions will be displayed.
+        :param screen_width: The width of the screen.
+        :param screen_height: The height of the screen.
+        """
+        # Colors and Fonts
+        WHITE = (255, 255, 255)
+        BLUE = (0, 0, 255)
+        BLACK = (0, 0, 0)
+        RED = (255, 0, 0)
+
+        title_font = pygame.font.SysFont(None, 50)
+        text_font = pygame.font.SysFont(None, 30)
+
+        # Instruction text
+        instructions = (
+            "1. Wait for a musical tone to play.",
+            "2. Quickly tap the object on the screen associated with the tone."
+        )
+
+        # Flag to keep the screen running
+        running = True
+
+        while running:
+            surface.fill(WHITE)
+
+            # Title
+            title_text = title_font.render("Game Instructions", True, BLUE)
+            surface.blit(title_text, (screen_width // 2 - title_text.get_width() // 2, 50))
+
+            # Render each line of instructions
+            y_offset = 150  # Starting y position for the instructions
+            for line in instructions:
+                render_text(surface, line, text_font, BLACK, 50, y_offset, screen_width - 100)
+                y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
+
+            # Navigation instructions
+            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
+            surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
+
+            # Event Handling
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:  # Proceed to the next screen
+                        running = False
+
+            # Update the screen
+            pygame.display.flip()
+
     # Main game loop
     sequence = []
     level = 1
     max_attempts = max_attempts_arg
     attempts = 0
     running = True
+
+    # Display instructions
+    instruction_screen(surface, win_width, win_height)
 
     while running and attempts < max_attempts:
         surface.fill(BLACK)

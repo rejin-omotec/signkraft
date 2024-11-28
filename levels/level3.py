@@ -78,6 +78,63 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                     elif event.key == pygame.K_2:
                         selected_language = "English"
         return selected_language
+    
+    def instruction_screen(surface, screen_width, screen_height):
+        """
+        Displays the instruction screen.
+
+        :param surface: The Pygame surface where the instructions will be displayed.
+        :param screen_width: The width of the screen.
+        :param screen_height: The height of the screen.
+        """
+        # Colors and Fonts
+        WHITE = (255, 255, 255)
+        BLUE = (0, 0, 255)
+        BLACK = (0, 0, 0)
+        RED = (255, 0, 0)
+
+        title_font = pygame.font.SysFont(None, 50)
+        text_font = pygame.font.SysFont(None, 30)
+
+        # Instruction text
+        instructions = (
+            "1. Select your preferred language: English or Hindi.",
+            "2. Listen carefully to the story narrated in your chosen language.",
+            "3. Answer questions based on details from the story.",
+            "4. Blink to select the options and submit the answers."
+        )
+
+        # Flag to keep the screen running
+        running = True
+
+        while running:
+            surface.fill(WHITE)
+
+            # Title
+            title_text = title_font.render("Game Instructions", True, BLUE)
+            surface.blit(title_text, (screen_width // 2 - title_text.get_width() // 2, 50))
+
+            # Render each line of instructions
+            y_offset = 150  # Starting y position for the instructions
+            for line in instructions:
+                render_text(surface, line, text_font, BLACK, 50, y_offset, screen_width - 100)
+                y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
+
+            # Navigation instructions
+            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
+            surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
+
+            # Event Handling
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:  # Proceed to the next screen
+                        running = False
+
+            # Update the screen
+            pygame.display.flip()
 
     # Colors
     WHITE = (255, 255, 255)
@@ -87,6 +144,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     FONT_SIZE = 24
     hindi_font = pygame.font.Font('fonts/Nirmala.ttf', FONT_SIZE)
     english_font = pygame.font.Font(None, FONT_SIZE)
+    
+    instruction_screen(surface, win_width, win_height)
 
     # Language Selection
     selected_language = language_selection(surface, win_width, win_height)
@@ -103,6 +162,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
 
     # Track story attempts
     story_attempts = 0  # Tracks the number of stories completed
+
 
     # Iterate over the stories (max 3 stories)
     for story in selected_stories:

@@ -16,11 +16,11 @@ def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
         # {"name": "Level 2", "module": "levels.level2"},
         # {"name": "Level 3", "module": "levels.level3"},
         # {"name": "Level 4", "module": "levels.level4"},
-        {"name": "Level 5", "module": "levels.level5"},
+        # {"name": "Level 5", "module": "levels.level5"},
         # {"name": "Level 6", "module": "levels.level6"},
         # {"name": "Level 7", "module": "levels.level7"},
         # {"name": "Level 8", "module": "levels.level8"},
-        # {"name": "Level 9", "module": "levels.level9"},
+        {"name": "Level 9", "module": "levels.level9"},
     ]
 
     win_width, win_height = screen.get_size()
