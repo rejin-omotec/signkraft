@@ -34,5 +34,38 @@
         "Incorrect": 1,
         "Time Taken": 3.2795255184173584,
         "Max Time": 60
+    },
+    {
+        "Player Name": "Rejin",
+        "Player Age": "34",
+        "Level Name": "Level 8",
+        "Game": "Shape Orientation",
+        "Weight": 1.0,
+        "Success": 0,
+        "Failure": 1,
+        "Time Taken": 1.002976655960083,
+        "Max Time": 60
+    },
+    {
+        "Player Name": "Rejin",
+        "Player Age": "34",
+        "Level Name": "Level 8",
+        "Game": "Shape Orientation",
+        "Weight": 1.5,
+        "Success": 0,
+        "Failure": 1,
+        "Time Taken": 1.0032415390014648,
+        "Max Time": 60
+    },
+    {
+        "Player Name": "Rejin",
+        "Player Age": "34",
+        "Level Name": "Level 8",
+        "Game": "Shape Orientation",
+        "Weight": 2.0,
+        "Success": 0,
+        "Failure": 1,
+        "Time Taken": 2.005561351776123,
+        "Max Time": 60
     }
 ]

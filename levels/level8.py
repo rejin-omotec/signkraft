@@ -140,17 +140,96 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Game loop
     running = True
+
+    # Define button properties dynamically based on font size
+    button_width = max(100, font.size("Submit")[0] + 20)
+    button_height = 50
+    button_margin = 20
+
+    # Button positions relative to the subsurface
+    left_button_rect = pygame.Rect(
+        level_width // 4 - button_width // 2,
+        level_height - button_height - button_margin,
+        button_width,
+        button_height
+    )
+    right_button_rect = pygame.Rect(
+        3 * level_width // 4 - button_width // 2,
+        level_height - button_height - button_margin,
+        button_width,
+        button_height
+    )
+    submit_button_rect = pygame.Rect(
+        level_width // 2 - button_width // 2,
+        level_height - button_height - 2 * button_margin - button_height,
+        button_width,
+        button_height
+    )
+
+    # Get the subsurface offset for proper mouse handling
+    subsurface_offset = surface.get_abs_offset()
+
     while running and attempts < max_attempts:
         clock.tick(60)  # Limit to 60 frames per second
-
         start_time = time.time()
-
 
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Adjust mouse position for subsurface
+                mouse_pos = pygame.mouse.get_pos()
+                adjusted_mouse_pos = (
+                    mouse_pos[0] - subsurface_offset[0],
+                    mouse_pos[1] - subsurface_offset[1]
+                )
+
+                # Check for button clicks
+                if left_button_rect.collidepoint(adjusted_mouse_pos):
+                    user_angle = (user_angle + 2) % 360
+                elif right_button_rect.collidepoint(adjusted_mouse_pos):
+                    user_angle = (user_angle - 2) % 360
+                elif submit_button_rect.collidepoint(adjusted_mouse_pos):
+                    # Check if the user's angle matches the reference angle within a tolerance
+                    angle_difference = abs((user_angle - reference_angle) % 360)
+                    if angle_difference <= 5 or angle_difference >= 355:
+                        # Player got it correct
+                        message = font.render("Correct!", True, (0, 255, 0))
+                        surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
+                        pygame.display.flip()
+                        pygame.time.wait(2000)  # Pause for 2 seconds
+                        score += 1
+                        elapsed_time = time.time() - start_time
+                        results.append({
+                            "Game": "Shape Orientation",
+                            "Weight": weights[attempts],
+                            "Success": 1,
+                            "Failure": 0,
+                            "Time Taken": elapsed_time,
+                            "Max Time": 60
+                        })
+                    else:
+                        # Player got it wrong
+                        message = font.render("Try Again!", True, (255, 0, 0))
+                        surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
+                        pygame.display.flip()
+                        pygame.time.wait(1000)  # Pause for 1 second
+                        elapsed_time = time.time() - start_time
+                        results.append({
+                            "Game": "Shape Orientation",
+                            "Weight": weights[attempts],
+                            "Success": 0,
+                            "Failure": 1,
+                            "Time Taken": elapsed_time,
+                            "Max Time": 60
+                        })
+
+                    # Reset for next round
+                    reference_angle = random.randint(0, 359)
+                    user_angle = 0
+                    attempts += 1
 
         # Key states for rotating the user shape
         keys = pygame.key.get_pressed()
@@ -170,28 +249,28 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 score += 1
                 elapsed_time = time.time() - start_time
                 results.append({
-                        "Game": "Shape Orientation",
-                        "Weight": weights[attempts],
-                        "Success": 1,
-                        "Failure": 0,
-                        "Time Taken": elapsed_time,
-                        "Max Time": 60
-                    })
+                    "Game": "Shape Orientation",
+                    "Weight": weights[attempts],
+                    "Success": 1,
+                    "Failure": 0,
+                    "Time Taken": elapsed_time,
+                    "Max Time": 60
+                })
             else:
                 # Player got it wrong
                 message = font.render("Try Again!", True, (255, 0, 0))
                 surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                 pygame.display.flip()
                 pygame.time.wait(1000)  # Pause for 1 second
-                elapsed_time = time.time() - start_time    
+                elapsed_time = time.time() - start_time
                 results.append({
-                        "Game": "Shape Orientation",
-                        "Weight": weights[attempts],
-                        "Success": 1,
-                        "Failure": 0,
-                        "Time Taken": elapsed_time,
-                        "Max Time": 60
-                    })
+                    "Game": "Shape Orientation",
+                    "Weight": weights[attempts],
+                    "Success": 0,
+                    "Failure": 1,
+                    "Time Taken": elapsed_time,
+                    "Max Time": 60
+                })
 
             # Reset for next round
             reference_angle = random.randint(0, 359)
@@ -211,6 +290,20 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         user_rect = user_rotated_image.get_rect(center=(3 * level_width // 4, level_height // 2))
         surface.blit(user_rotated_image, user_rect)
 
+        # Draw buttons
+        pygame.draw.rect(surface, (200, 200, 200), left_button_rect)  # Left button
+        pygame.draw.rect(surface, (200, 200, 200), right_button_rect)  # Right button
+        pygame.draw.rect(surface, (200, 200, 200), submit_button_rect)  # Submit button
+
+        # Add button text
+        left_text = font.render("Left", True, BLACK)
+        right_text = font.render("Right", True, BLACK)
+        submit_text = font.render("Submit", True, BLACK)
+
+        surface.blit(left_text, (left_button_rect.centerx - left_text.get_width() // 2, left_button_rect.centery - left_text.get_height() // 2))
+        surface.blit(right_text, (right_button_rect.centerx - right_text.get_width() // 2, right_button_rect.centery - right_text.get_height() // 2))
+        surface.blit(submit_text, (submit_button_rect.centerx - submit_text.get_width() // 2, submit_button_rect.centery - submit_text.get_height() // 2))
+
         # Display instructions
         instructions = font.render("Match the orientation!", True, BLACK)
         surface.blit(instructions, (level_width // 2 - instructions.get_width() // 2, 20))
@@ -226,6 +319,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     pygame.time.wait(2000)
 
     return results, score
+
 
 def render_text_1(surface, text, font, color, x, y):
     """Helper function to render text to the Pygame surface."""
