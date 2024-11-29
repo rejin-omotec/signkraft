@@ -3,7 +3,7 @@ import sys
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Memory Sequence Game inside the provided surface.
 
@@ -83,16 +83,19 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             surface.blit(text_surface, (x, y))
             y += font.get_linesize() + 5
 
+
+
     def get_player_input(sequence):
         """Get and validate the player's input."""
         input_sequence = []
+        start_time = time.time()
+
         while len(input_sequence) < len(sequence):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # Adjust the mouse click coordinates to the subsurface coordinates
                     x, y = event.pos
                     surface_rect = surface.get_abs_offset()
                     x -= surface_rect[0]
@@ -100,7 +103,6 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
 
                     for idx, shape in enumerate(shapes):
                         if shape['rect'].collidepoint((x, y)):
-                            # Flash the shape
                             pygame.draw.rect(surface, WHITE, shape['rect'])
                             pygame.display.flip()
                             shape['tone'].play()
@@ -108,11 +110,12 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                             pygame.draw.rect(surface, shape['color'], shape['rect'])
                             pygame.display.flip()
                             input_sequence.append(idx)
-                            # Check if the input is correct so far
-                            if input_sequence[-1] != sequence[len(input_sequence)-1]:
-                                return False
-            pygame.display.flip()
-        return True
+                            if input_sequence[-1] != sequence[len(input_sequence) - 1]:
+                                return False, time.time() - start_time
+
+        return True, time.time() - start_time
+    
+
 
     def instruction_screen(surface, screen_width, screen_height):
         """
@@ -154,7 +157,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
 
             # Navigation instructions
-            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
+            nav_text = text_font.render("Press ENTER or CLICK to proceed.", True, RED)
             surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
 
             # Event Handling
@@ -164,6 +167,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Proceed to the next screen
+                        running = False
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
                         running = False
 
             # Update the screen
@@ -175,6 +181,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     max_attempts = max_attempts_arg
     attempts = 0
     running = True
+    score = 0
+    results = []  # JSON-compatible results
 
     # Display instructions
     instruction_screen(surface, win_width, win_height)
@@ -193,7 +201,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         play_sequence(sequence, speed=max(0.1, 0.5 - level * 0.02))
 
         # Get player's input
-        correct = get_player_input(sequence)
+        correct, time_taken = get_player_input(sequence)
 
         if not correct:
             # Game Over
@@ -204,8 +212,14 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             pygame.time.wait(2000)
             running = False
         else:
+            score += 1
+            results.append({
+                "Game": "Memory Sequence",
+                "Weight": 1.0,
+                "Sequence Length": len(sequence),
+                "Time Taken": time_taken
+            })
             level += 1
-            update_score_callback(1)  # Increase score by 1 for each successful sequence
             pygame.time.wait(500)
 
         attempts += 1
@@ -213,13 +227,13 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     # Display final stats before exiting
     surface.fill(BLACK)
     final_score_text = f"Final Level Reached: {level - 1}"
-    render_text(surface, final_score_text, pygame.font.Font(None, 36), WHITE, 50, 50)
+    render_text_1(surface, final_score_text, pygame.font.Font(None, 36), WHITE, 50, 50)
     pygame.display.flip()
     pygame.time.wait(2000)
 
-    return level - 1, attempts
+    return results, score
 
-def render_text(surface, text, font, color, x, y):
+def render_text_1(surface, text, font, color, x, y):
     """Helper function to render text to the Pygame surface."""
     text_surface = font.render(text, True, color)
     surface.blit(text_surface, (x, y))

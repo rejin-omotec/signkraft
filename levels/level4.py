@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Whack-a-Mole game inside the provided surface.
 
@@ -104,7 +104,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
 
             # Navigation instructions
-            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
+            nav_text = text_font.render("Press ENTER or CLICK to proceed.", True, RED)
             surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
 
             # Event Handling
@@ -113,6 +113,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                     pygame.quit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Proceed to the next screen
+                        running = False
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
                         running = False
 
             # Update the screen
@@ -124,10 +127,13 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     mole_appeared_time = 0
     next_mole_time = 0
     response_times = []
+    missed_moles = 0
     correct_hits = 0
     total_moles = 0
     max_attempts = max_attempts_arg
     attempts = 0
+    results = []  # Store detailed results
+
 
     # Clock
     clock = pygame.time.Clock()
@@ -160,6 +166,14 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                     hit_time = current_time - mole_appeared_time
                     response_times.append(hit_time)
                     correct_hits += 1
+                    results.append({
+                        "Game": "Whack-a-Mole",
+                        "Weight": 1.0,
+                        "Correct": 1,
+                        "Incorrect": 0,
+                        "Response Time": hit_time,
+                        "Mole Appear Time": MOLE_APPEAR_TIME,
+                    })
 
                     # Show fade effect by changing mole color to gray (dim the coin image)
                     faded_coin = pygame.Surface((MOLE_SIZE, MOLE_SIZE), pygame.SRCALPHA)
@@ -190,6 +204,15 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             if MOLE_APPEAR_TIME < MOLE_MIN_TIME:
                 MOLE_APPEAR_TIME = MOLE_MIN_TIME
             attempts += 1  # Increment attempts when a mole times out
+            missed_moles += 1
+            results.append({
+                "Game": "Whack-a-Mole",
+                "Weight": 1.0,
+                "Correct": 0,
+                "Incorrect": 1,
+                "Response Time": 0,
+                "Mole Appear Time": MOLE_APPEAR_TIME,
+            })
 
         # Draw mole (gold coin image)
         if mole_rect:
@@ -215,7 +238,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     pygame.display.update()
     pygame.time.wait(2000)
 
-    return correct_hits, attempts
+    return results, correct_hits
 
 
 def render_text_simple(surface, text, font, color, x, y):
