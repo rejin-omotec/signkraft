@@ -3,7 +3,7 @@ import random
 import sys
 from pygame.locals import *
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Image Recall Game inside the provided surface.
 
@@ -100,22 +100,15 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Proceed to the next screen
                         running = False
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                        running = False
+
 
             # Update the screen
             pygame.display.flip()
 
-    # Game variables
-    sequence_length = 3        # Number of images to show in the sequence
-    display_time = 2000        # Time to display each image (in milliseconds)
-    sequence = []
-    selected_images = []
-    score = 0
-    max_attempts = max_attempts_arg
-    attempts = 0
-    clock = pygame.time.Clock()
-
-    # display the instruction screen
-    instruction_screen(surface, win_width, win_height)
+   
 
     def show_message(message):
         """Display a message in the center of the subsurface."""
@@ -196,7 +189,24 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         correct_selections = set(sequence) & set(selected_imgs)
         return len(correct_selections)
 
+
+    # Game variables
     running = True
+    sequence_length = 3        # Number of images to show in the sequence
+    display_time = 2000        # Time to display each image (in milliseconds)
+    sequence = []
+    selected_images = []
+    score = 0
+    total_score = 0
+    results = []
+    max_attempts = max_attempts_arg
+    attempts = 0
+
+    clock = pygame.time.Clock()
+
+    # display the instruction screen
+    instruction_screen(surface, win_width, win_height)
+
 
     while running and attempts < max_attempts:
         # Generate a random sequence from the image list
@@ -209,7 +219,15 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
 
         # Calculate and display the score
         score = calculate_score(sequence, selected_images)
-        update_score_callback(score)  # Update score
+
+        results.append({
+            "Game": "Image Recall",
+            "Weight": 1.0,
+            "Correct Count": score,
+            "Incorrect Count": sequence_length - score,
+            "Elapsed Time": pygame.time.get_ticks() // 1000,
+        })
+
         show_message(f'You identified {score}/{sequence_length} images correctly!')
 
         attempts += 1
@@ -218,6 +236,6 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     show_message(f'Final Score: {score}')
     pygame.time.wait(2000)
 
-    return score, attempts
+    return results, score
 
 # This function `run_game()` can now be used similarly to other levels, passing in a subsurface for it to be rendered within.

@@ -96,6 +96,10 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Proceed to the next screen
                         running = False
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                        running = False
+
 
             # Update the screen
             pygame.display.flip()
