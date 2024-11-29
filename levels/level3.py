@@ -15,7 +15,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         with open(file_path, "r", encoding="utf-8") as file:
             return json.load(file)
 
-    # def play_audio(audio):
+    def play_audio(audio):
         """
         Play the audio narration of the story.
         """

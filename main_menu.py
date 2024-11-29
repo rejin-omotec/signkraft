@@ -3,6 +3,9 @@ import csv
 import pygame
 import game_engine  # Import the game engine
 import json
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 # Initialize Pygame
 pygame.init()
@@ -17,6 +20,7 @@ BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 LIGHT_GRAY = (220, 220, 220)
 BLUE = (173, 216, 230)
+RED = (255, 0, 0)
 
 # Fonts
 FONT = pygame.font.Font(None, 36)
@@ -83,7 +87,38 @@ def save_game_result(game_name, weight, correct, incorrect, time_taken, total_ti
     print(f"Game result saved to JSON file: {json_file_path}")
 
 
-def calculate_cognitive_scores():
+def generate_radar_plot(scores, output_path):
+    """
+    Generates a radar plot for the cognitive scores and saves the plot as an image.
+    """
+    # Extract categories and values
+    categories = list(scores.keys())
+    values = list(scores.values())
+    
+    # Add the first value to close the radar chart
+    values += values[:1]
+    num_vars = len(categories)
+
+    # Compute angle for each axis
+    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+    angles += angles[:1]
+
+    # Create radar chart
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+    ax.fill(angles, values, color='blue', alpha=0.25)
+    ax.plot(angles, values, color='blue', linewidth=2)
+    ax.set_yticks([])
+
+    # Set category labels
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(categories)
+
+    # Save plot to file
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+
+
+def calculate_cognitive_scores(json_file_path):
     """
     Reads the JSON file, calculates cognitive scores for each category, and returns the scores as a dictionary.
     """
@@ -159,31 +194,65 @@ def calculate_cognitive_scores():
     print("\nFinal Aggregated Scores:")
     print(aggregated_scores)
 
-    return aggregated_scores
+    # Generate and save radar plot
+    output_dir = os.path.dirname(json_file_path)
+    radar_image_path = os.path.join(output_dir, "radar_plot.png")
+    generate_radar_plot(aggregated_scores, radar_image_path)
+
+    return aggregated_scores, radar_image_path
 
 
-
-
-def draw_end_screen(screen, cognitive_scores):
+def draw_end_screen(screen, cognitive_scores, radar_image_path):
     """
-    Displays the end screen with calculated cognitive scores.
+    Displays the end screen with smaller text on the left and a larger radar plot on the right.
     """
     global current_score
 
+    # Clear the screen
     screen.fill(WHITE)
-    title_surface = TITLE_FONT.render("Game Over!", True, BLACK)
-    screen.blit(title_surface, (WIDTH // 2 - title_surface.get_width() // 2, 100))
 
-    # Display final score
-    score_surface = FONT.render(f"Final Score: {current_score}", True, BLACK)
-    screen.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 200))
+    # Adjusted fonts for smaller text
+    small_font = pygame.font.Font(None, 24)
+    title_font = pygame.font.Font(None, 50)
 
-    # Display cognitive scores
-    y_offset = 300
+    # Title centered at the top
+    title_surface = title_font.render("Game Over!", True, BLACK)
+    screen.blit(title_surface, (WIDTH // 2 - title_surface.get_width() // 2, 20))
+
+    # Display final score on the left
+    score_surface = small_font.render(f"Final Score: {current_score}", True, BLACK)
+    screen.blit(score_surface, (30, 100))
+
+    # Display cognitive scores on the left side with smaller font
+    y_offset = 140
     for key, value in cognitive_scores.items():
-        score_text = FONT.render(f"{key}: {value}", True, BLACK)
-        screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, y_offset))
-        y_offset += 50
+        score_text = small_font.render(f"{key}: {value}", True, BLACK)
+        screen.blit(score_text, (30, y_offset))
+        y_offset += 30
+
+    # Load and display the radar plot image on the right side
+    try:
+        radar_image = pygame.image.load(radar_image_path)
+
+        # Calculate scale while maintaining proportions for a larger image
+        max_width = 500  # Increased maximum width
+        max_height = 500  # Increased maximum height
+        image_width, image_height = radar_image.get_size()
+        scale_factor = min(max_width / image_width, max_height / image_height)
+
+        # Apply scaling
+        new_width = int(image_width * scale_factor)
+        new_height = int(image_height * scale_factor)
+        radar_image = pygame.transform.scale(radar_image, (new_width, new_height))
+
+        # Position the scaled image
+        radar_x = WIDTH - new_width - 30  # Right margin
+        radar_y = 80  # Align with the top of the text
+        screen.blit(radar_image, (radar_x, radar_y))
+    except Exception as e:
+        # Display an error message if the image cannot be loaded
+        error_surface = small_font.render("Error loading radar image!", True, RED)
+        screen.blit(error_surface, (WIDTH - 30 - error_surface.get_width(), 100))
 
     # Event Handling
     for event in pygame.event.get():
@@ -191,7 +260,11 @@ def draw_end_screen(screen, cognitive_scores):
             pygame.quit()
             exit()
 
+    # Update the display
     pygame.display.update()
+
+
+
 
 
 
@@ -345,9 +418,9 @@ def main():
         #     pygame.display.update()
         elif game_state == "END_SCREEN":
             if not cognitive_bool:
-                cognitive_scores = calculate_cognitive_scores()
+                cognitive_scores, radar_image_path = calculate_cognitive_scores(json_file_path)
                 cognitive_bool = True
-            draw_end_screen(screen, cognitive_scores)
+            draw_end_screen(screen, cognitive_scores, radar_image_path)
 
 
 if __name__ == "__main__":
