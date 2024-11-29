@@ -3,7 +3,7 @@ import sys
 import threading
 import speech_recognition as sr
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Image Description Game with Speech and Scoring inside the provided surface.
 
@@ -85,7 +85,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
 
             # Navigation instructions
-            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
+            nav_text = text_font.render("Press ENTER or CLICK to proceed.", True, RED)
             surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
 
             # Event Handling
@@ -126,6 +126,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     matched_keywords = []
     max_attempts = max_attempts_arg
     attempts = 0
+    results = []  # Track each attempt
+
     clock = pygame.time.Clock()
 
     # display the instruction screen
@@ -144,7 +146,6 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 print("You said:", speech_text)
                 # Check for keywords in the speech text
                 check_keywords()
-                update_score_callback(score)
             except sr.WaitTimeoutError:
                 error_message = "Listening timed out. Please try again."
                 print(error_message)
@@ -246,7 +247,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     pygame.display.flip()
     pygame.time.wait(2000)
 
-    return score if score is not None else 0, attempts
+    # return score if score is not None else 0, attempts
+    return results, score
 
 def render_text(surface, text, font, color, x, y):
     """Helper function to render text to the Pygame surface."""

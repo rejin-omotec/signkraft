@@ -27,8 +27,8 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
         # {"name": "Level 4", "module": "levels.level4"},
         # {"name": "Level 5", "module": "levels.level5"},
         # {"name": "Level 6", "module": "levels.level6"},
-        {"name": "Level 7", "module": "levels.level7"},
-        # {"name": "Level 8", "module": "levels.level8"},
+        # {"name": "Level 7", "module": "levels.level7"},
+        {"name": "Level 8", "module": "levels.level8"},
         # {"name": "Level 9", "module": "levels.level9"},
     ]
 

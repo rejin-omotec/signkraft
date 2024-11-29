@@ -2,8 +2,9 @@ import pygame
 import sys
 import random
 import math
+import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Shape Orientation Game inside the provided surface.
 
@@ -104,6 +105,10 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Proceed to the next screen
                         running = False
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                        running = False
+
 
             # Update the screen
             pygame.display.flip()
@@ -126,6 +131,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     max_attempts = max_attempts_arg
     attempts = 0
     score = 0
+    results = []  # JSON-compatible results
+    weights = [1.0, 1.5, 2.0]  # Scoring weights
+
 
     # display instructions
     instruction_screen(surface, win_width, win_height)
@@ -134,6 +142,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     running = True
     while running and attempts < max_attempts:
         clock.tick(60)  # Limit to 60 frames per second
+
+        start_time = time.time()
+
 
         # Event handling
         for event in pygame.event.get():
@@ -157,13 +168,30 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                 pygame.display.flip()
                 pygame.time.wait(2000)  # Pause for 2 seconds
                 score += 1
-                update_score_callback(1)  # Increase score by 1 for each successful attempt
+                elapsed_time = time.time() - start_time
+                results.append({
+                        "Game": "Shape Orientation",
+                        "Weight": weights[attempts],
+                        "Success": 1,
+                        "Failure": 0,
+                        "Time Taken": elapsed_time,
+                        "Max Time": 60
+                    })
             else:
                 # Player got it wrong
                 message = font.render("Try Again!", True, (255, 0, 0))
                 surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                 pygame.display.flip()
                 pygame.time.wait(1000)  # Pause for 1 second
+                elapsed_time = time.time() - start_time    
+                results.append({
+                        "Game": "Shape Orientation",
+                        "Weight": weights[attempts],
+                        "Success": 1,
+                        "Failure": 0,
+                        "Time Taken": elapsed_time,
+                        "Max Time": 60
+                    })
 
             # Reset for next round
             reference_angle = random.randint(0, 359)
@@ -193,13 +221,13 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
     # Display final score before quitting the level
     surface.fill(WHITE)
     final_score_text = f'Final Score: {score}/{max_attempts}'
-    render_text(surface, final_score_text, font, BLACK, level_width // 2, level_height // 2)
+    render_text_1(surface, final_score_text, font, BLACK, level_width // 2, level_height // 2)
     pygame.display.flip()
     pygame.time.wait(2000)
 
-    return score, attempts
+    return results, score
 
-def render_text(surface, text, font, color, x, y):
+def render_text_1(surface, text, font, color, x, y):
     """Helper function to render text to the Pygame surface."""
     text_surface = font.render(text, True, color)
     rect = text_surface.get_rect(center=(x, y))
