@@ -116,9 +116,9 @@ class BlinkDetectionThread(threading.Thread):
                 self.blink_queue.put("")
 
             # Display the frame with landmarks and ratio
-            cv2.imshow("Blink Detection with Landmarks", frame)
+            # cv2.imshow("Blink Detection with Landmarks", frame)
 
-            if cv2.waitKey(2) == 27:
+            if cv2.waitKey(2) == 10:
                 break
 
         self.video_capture.release()

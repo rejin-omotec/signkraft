@@ -1,18 +1,15 @@
 import pygame
 import random
 import time
+import queue
+from mods.blink_detect import BlinkDetectionThread  # Assuming the class above is saved in BlinkDetectionThread.py
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
-    """
-    Runs the Cause and Effect MCQ game inside the provided surface.
+    # Blink detection setup
+    blink_queue = queue.Queue()
+    blink_thread = BlinkDetectionThread(blink_queue)
+    blink_thread.start()  # Start the blink detection thread
 
-    :param surface: The Pygame surface where the game is rendered.
-    :param update_score_callback: Callback to update the score in the main menu.
-    :param level_width: Width of the game level area (subsurface).
-    :param level_height: Height of the game level area (subsurface).
-    :param win_width: Width of the entire window.
-    :param win_height: Height of the entire window.
-    """
     # Colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -33,103 +30,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         ("It was left in the oven too long.", "The cake burned."),
         ("There was a lot of smoke in the air.", "People were coughing."),
         ("There was a power outage.", "The computer shut down unexpectedly."),
-        ("It was dropped on the ground.", "The phone's screen cracked.")
+        ("It was dropped on the ground.", "The phone's screen cracked."),
     ]
     random.shuffle(cause_effect_pairs)
-
-    def render_text(surface, text, font, color, x, y, max_width):
-        """
-        Helper function to render text with word wrapping.
-        """
-        words = text.split(' ')
-        lines = []
-        current_line = ""
-
-        for word in words:
-            if font.size(current_line + word)[0] <= max_width:
-                current_line += word + " "
-            else:
-                lines.append(current_line)
-                current_line = word + " "
-
-        if current_line:
-            lines.append(current_line)
-
-        for line in lines:
-            text_surface = font.render(line, True, color)
-            surface.blit(text_surface, (x, y))
-            y += font.get_linesize() + 5
-
-    def instruction_screen(surface, screen_width, screen_height):
-        """
-        Displays the instruction screen.
-
-        :param surface: The Pygame surface where the instructions will be displayed.
-        :param screen_width: The width of the screen.
-        :param screen_height: The height of the screen.
-        """
-        # Colors and Fonts
-        WHITE = (255, 255, 255)
-        BLUE = (0, 0, 255)
-        BLACK = (0, 0, 0)
-        RED = (255, 0, 0)
-
-        title_font = pygame.font.SysFont(None, 50)
-        text_font = pygame.font.SysFont(None, 30)
-
-        # Instruction text
-        instructions = (
-            "1. Your goal is to figure out what action led to the given result.",
-            "2. Observe the result displayed on the screen and choose the action you think caused the result."
-        )
-
-        # Flag to keep the screen running
-        running = True
-
-        while running:
-            surface.fill(WHITE)
-
-            # Title
-            title_text = title_font.render("Game Instructions", True, BLUE)
-            surface.blit(title_text, (screen_width // 2 - title_text.get_width() // 2, 50))
-
-            # Render each line of instructions
-            y_offset = 150  # Starting y position for the instructions
-            for line in instructions:
-                render_text(surface, line, text_font, BLACK, 50, y_offset, screen_width - 100)
-                y_offset += text_font.get_linesize() + 20  # Adjust spacing between lines
-
-            # Navigation instructions
-            nav_text = text_font.render("Press ENTER to proceed.", True, RED)
-            surface.blit(nav_text, (screen_width // 2 - nav_text.get_width() // 2, screen_height - 100))
-
-            # Event Handling
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                # if any mouse button is pressed, proceed to the next screen
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                        running = False
-
-            # Update the screen
-            pygame.display.flip()
-    
-    instruction_screen(surface, win_width, win_height)
-
-    # Game variables
-    current_index = 0
-    score = 0
-    selected_option = None
-    options = []
-    option_rects = []
-    options_generated = False
-    show_feedback = False
-    feedback = ""
-    feedback_time = 0
-    attempts = 0
-    max_attempts = max_attempts_arg
-    weights = [1.0, 1.5, 2.0]  # Increasing weights for each attempt
-    results = []
 
     # Helper function to generate options
     def generate_options(correct_cause, all_causes, num_options=4):
@@ -142,6 +45,19 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     clock = pygame.time.Clock()
     running = True
+    current_index = 0
+    score = 0
+    selected_option = 0  # Track the current highlighted option
+    options = []
+    option_rects = []
+    options_generated = False
+    show_feedback = False
+    feedback = ""
+    feedback_time = 0
+    attempts = 0
+    max_attempts = max_attempts_arg
+    weights = [1.0, 1.5, 2.0]  # Increasing weights for each attempt
+    results = []
 
     # Prepare all causes for option generation
     all_causes = [pair[0] for pair in cause_effect_pairs]
@@ -149,59 +65,53 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     while running and attempts < max_attempts:
         start_time = time.time()  # Start timing the attempt
 
+        # Handle Pygame events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.quit()
+                blink_thread.stop()  # Stop the blink detection thread
                 return
 
-            # Mouse click events
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # Translate mouse position to the subsurface coordinates
-                x, y = event.pos
-
-                # Get the position of the subsurface relative to the main window
-                surface_rect = surface.get_abs_offset()
-
-                # Adjust the mouse click coordinates relative to the subsurface
-                x -= surface_rect[0]
-                y -= surface_rect[1]
-
+        # Handle blink input
+        try:
+            blink_message = blink_queue.get_nowait()
+            if blink_message == "SINGLE_BLINK":
+                # Toggle options using single blink
+                selected_option = (selected_option + 1) % len(options)
+            elif blink_message == "DOUBLE_BLINK":
+                # Submit selected option using double blink
                 if current_index < len(cause_effect_pairs):
-                    if not show_feedback:
-                        for idx, option_rect in enumerate(option_rects):
-                            if option_rect.collidepoint(x, y):
-                                selected_option = options[idx]
-                                # Check the user's answer
-                                correct_cause, effect = cause_effect_pairs[current_index]
-                                time_taken = time.time() - start_time  # Calculate time taken
+                    correct_cause, effect = cause_effect_pairs[current_index]
+                    time_taken = time.time() - start_time  # Calculate time taken
 
-                                if selected_option == correct_cause:
-                                    feedback = "Correct!"
-                                    score += 1
-                                    results.append({
-                                        "Game": "Cause and Effect",
-                                        "Weight": weights[attempts],
-                                        "Correct": 1,
-                                        "Incorrect": 0,
-                                        "Time Taken": time_taken,
-                                        "Max Time": 60
-                                    })
-                                else:
-                                    feedback = f"Incorrect! The correct cause was: {correct_cause}"
-                                    results.append({
-                                        "Game": "Cause and Effect",
-                                        "Weight": weights[attempts],
-                                        "Correct": 0,
-                                        "Incorrect": 1,
-                                        "Time Taken": time_taken,
-                                        "Max Time": 60
-                                    })
+                    if options[selected_option] == correct_cause:
+                        feedback = "Correct!"
+                        score += 1
+                        results.append({
+                            "Game": "Cause and Effect",
+                            "Weight": weights[attempts],
+                            "Correct": 1,
+                            "Incorrect": 0,
+                            "Time Taken": time_taken,
+                            "Max Time": 60
+                        })
+                    else:
+                        feedback = f"Incorrect! The correct cause was: {correct_cause}"
+                        results.append({
+                            "Game": "Cause and Effect",
+                            "Weight": weights[attempts],
+                            "Correct": 0,
+                            "Incorrect": 1,
+                            "Time Taken": time_taken,
+                            "Max Time": 60
+                        })
 
-                                show_feedback = True
-                                feedback_time = pygame.time.get_ticks()
-                                attempts += 1  # Increment the number of attempts
-                                break
+                    show_feedback = True
+                    feedback_time = pygame.time.get_ticks()
+                    attempts += 1  # Increment attempts
+        except queue.Empty:
+            pass
 
         # Clear the surface
         surface.fill(WHITE)
@@ -224,7 +134,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             # Display the options
             for idx, option in enumerate(options):
                 rect = option_rects[idx]
-                pygame.draw.rect(surface, LIGHT_GRAY, rect)
+                color = DARK_GRAY if idx == selected_option else LIGHT_GRAY  # Highlight selected option
+                pygame.draw.rect(surface, color, rect)
                 option_surface = FONT.render(option, True, BLACK)
                 surface.blit(option_surface, (rect.x + 10, rect.y + 10))
 
@@ -236,7 +147,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                     show_feedback = False
                     current_index += 1
                     options_generated = False  # Reset the flag for the next question
-                    selected_option = None
+                    selected_option = 0  # Reset selection to the first option
                     if current_index >= len(cause_effect_pairs):
                         running = False
         else:
@@ -261,5 +172,5 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         pygame.display.update()
         clock.tick(30)
 
-    # Return detailed results as a list of dictionaries
+    blink_thread.stop()  # Stop the blink detection thread
     return results, score
