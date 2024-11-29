@@ -46,10 +46,15 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         if current_line:
             lines.append(current_line)
 
+        text_rects = []
         for line in lines:
             text_surface = font.render(line, True, color)
-            surface.blit(text_surface, (x, y))
+            rect = surface.blit(text_surface, (x, y))
+            text_rects.append(rect)
             y += font.get_linesize() + 5
+
+        return text_rects  # Return rectangles of rendered text for interaction
+
 
     def language_selection(surface, win_width, win_height):
         """Display a language selection screen with mouse and keyboard functionality, accounting for subsurface offsets."""
@@ -201,6 +206,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     # Initialize results list
     results = []
     weights = [1.0, 1.5, 2.0]  # Example weights for increasing difficulty or attempts
+    HIGHLIGHT_COLOR = (200, 200, 200)
+    GREEN = (0, 128, 0)
 
     # Track story attempts
     story_attempts = 0  # Tracks the number of stories completed
@@ -246,19 +253,58 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         score = 0
         current_question = 0
 
+        subsurface_offset = surface.get_abs_offset()
+
         while current_question < len(questions):
             question = questions[current_question]
             selected_option = -1  # Reset selected option for each question
             start_time = time.time()  # Start timer for the question
 
             while True:
+                # Clear the surface once
                 surface.fill(WHITE)
+
+                # Render the question
                 render_text(surface, question["question"], font, BLACK, 50, 50, level_width - 50)
+
+                # Render options and track their rectangles
+                option_rects = []
                 for i, option in enumerate(question["options"]):
                     option_text = f"{i + 1}. {option}"
-                    color = BLACK if selected_option != i else (0, 128, 0)
-                    render_text(surface, option_text, font, color, 70, 150 + i * 40, level_width - 50)
+                    color = BLACK if selected_option != i else GREEN
+                    rects = render_text(surface, option_text, font, color, 70, 150 + i * 40, level_width - 50)
+                    option_rects.append(rects[-1])  # Get the rectangle of the last line of the option text
+
+                # Render submit instruction
                 render_text(surface, "Press Enter to submit", font, BLACK, 50, level_height - 50, level_width - 50)
+
+                # Get mouse position and adjust for subsurface offset
+                mouse_pos = pygame.mouse.get_pos()
+                adjusted_mouse_pos = (
+                    mouse_pos[0] - subsurface_offset[0],
+                    mouse_pos[1] - subsurface_offset[1]
+                )
+
+                # Check mouse hover over options
+                hovered_option = None
+                for i, rect in enumerate(option_rects):
+                    if rect.collidepoint(adjusted_mouse_pos):
+                        hovered_option = i
+
+                # Draw highlight for hovered option
+                if hovered_option is not None:
+                    highlight_rect = option_rects[hovered_option].inflate(10, 10)
+                    pygame.draw.rect(surface, HIGHLIGHT_COLOR, highlight_rect)
+                    render_text(
+                        surface,
+                        f"{hovered_option + 1}. {question['options'][hovered_option]}",
+                        font,
+                        BLACK,
+                        option_rects[hovered_option].x,
+                        option_rects[hovered_option].y,
+                        level_width - 50
+                    )
+
                 pygame.display.update()
 
                 for event in pygame.event.get():
@@ -279,23 +325,49 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             is_correct = question["options"][selected_option] == question["answer"]
                             if is_correct:
                                 score += 1
-                                results.append([
-                                    "Story Game",
-                                    weights[story_attempts],  # Weight based on story number
-                                    1,
-                                    0,
-                                    time_taken,
-                                    60
-                                ])
+                                results.append({
+                                        "Game": "Story Game",
+                                        "Weight": weights[story_attempts],
+                                        "Correct": 1,
+                                        "Incorrect": 0,
+                                        "Time Taken": time_taken,
+                                        "Max Time": 60
+                                    })
                             else:
-                                results.append([
-                                    "Story Game",
-                                    weights[story_attempts],
-                                    0,
-                                    1,
-                                    time_taken,
-                                    60
-                                ])
+                                results.append({
+                                        "Game": "Story Game",
+                                        "Weight": weights[story_attempts],
+                                        "Correct": 0,
+                                        "Incorrect": 1,
+                                        "Time Taken": time_taken,
+                                        "Max Time": 60
+                                    })
+                            current_question += 1
+                            break
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
+                        if hovered_option is not None:
+                            selected_option = hovered_option
+                            time_taken = time.time() - start_time
+                            is_correct = question["options"][selected_option] == question["answer"]
+                            if is_correct:
+                                score += 1
+                                results.append({
+                                        "Game": "Story Game",
+                                        "Weight": weights[story_attempts],
+                                        "Correct": 1,
+                                        "Incorrect": 0,
+                                        "Time Taken": time_taken,
+                                        "Max Time": 60
+                                    })
+                            else:
+                                results.append({
+                                        "Game": "Story Game",
+                                        "Weight": weights[story_attempts],
+                                        "Correct": 0,
+                                        "Incorrect": 1,
+                                        "Time Taken": time_taken,
+                                        "Max Time": 60
+                                    })
                             current_question += 1
                             break
                 else:
