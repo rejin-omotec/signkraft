@@ -2,6 +2,7 @@ import os
 import csv
 import pygame
 import game_engine  # Import the game engine
+import json
 
 # Initialize Pygame
 pygame.init()
@@ -28,51 +29,171 @@ game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
 current_score = 0
 current_game_name = "Game Hub"
 
-csv_file_path = ""
+json_file_path = ""
 
-def setup_player_folder_and_csv(name):
-    global csv_file_path
+
+def setup_player_folder_and_json(name):
+    global json_file_path
     """
-    Creates a folder and CSV file for the player's name if it doesn't exist.
-    If the folder and file exist, opens the CSV file for appending.
+    Creates a folder and JSON file for the player's name if it doesn't exist.
     """
-    # Convert the name to lowercase and strip spaces
     normalized_name = name.strip().lower()
     base_dir = "test_data"
     player_folder = os.path.join(base_dir, normalized_name)
 
-    # Ensure the base directory exists
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
 
-    # Create player folder if it doesn't exist
     if not os.path.exists(player_folder):
         os.makedirs(player_folder)
         print(f"Folder created: {player_folder}")
 
-    # CSV file path
-    csv_file_path = os.path.join(player_folder, f"{normalized_name}.csv")
+    json_file_path = os.path.join(player_folder, f"{normalized_name}.json")
 
-    # Check if the file exists
-    if not os.path.exists(csv_file_path):
-        # Create the CSV file and write headers
-        with open(csv_file_path, mode="w", newline="") as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerow(["Game Name", "Weight","Correct","Incorrect","Time Taken", "Total Time"])  # Headers
-            # ["Cause and Effect", weights[attempts], correct, incorrect, time_taken, 60]
-            print(f"CSV file created: {csv_file_path}")
+    if not os.path.exists(json_file_path):
+        with open(json_file_path, mode="w") as json_file:
+            json.dump([], json_file)
+            print(f"JSON file created: {json_file_path}")
     else:
-        # If the file exists, add an empty line
-        with open(csv_file_path, mode="a", newline="") as csv_file:
-            csv_file.write("\n")  # Adds a blank line
-            print(f"Empty line added to existing CSV: {csv_file_path}")
+        print(f"JSON file already exists: {json_file_path}")
 
-    # Open the CSV file for appending
-    csv_file = open(csv_file_path, mode="a", newline="")
-    csv_writer = csv.writer(csv_file)
-    print(f"CSV file opened for appending: {csv_file_path}")
+    return json_file_path
 
-    return csv_writer, csv_file_path
+
+def save_game_result(game_name, weight, correct, incorrect, time_taken, total_time):
+    """
+    Appends a new game result to the player's JSON file.
+    """
+    global json_file_path
+    with open(json_file_path, mode="r") as json_file:
+        data = json.load(json_file)
+
+    game_result = {
+        "Game Name": game_name,
+        "Weight": weight,
+        "Correct": correct,
+        "Incorrect": incorrect,
+        "Time Taken": time_taken,
+        "Total Time": total_time
+    }
+    data.append(game_result)
+
+    with open(json_file_path, mode="w") as json_file:
+        json.dump(data, json_file, indent=4)
+    print(f"Game result saved to JSON file: {json_file_path}")
+
+
+def calculate_cognitive_scores():
+    """
+    Reads the JSON file, calculates cognitive scores for each category, and returns the scores as a dictionary.
+    """
+    with open(json_file_path, "r") as json_file:
+        data = json.load(json_file)
+
+    def min_max_normalization(value, min_val, max_val):
+        return (value - min_val) / (max_val - min_val) if max_val != min_val else 0
+
+    # Categorize games for cognitive dimensions
+    categories = {
+        "Memory": ["Memory Sequence", "Image Recall"],
+        "Attention": ["Story Game", "Whack-a-Mole"],
+        "Logical Reasoning": ["Cause and Effect", "Image Analogy"],
+        "Spatial Reasoning": ["Shape Orientation"],
+        "Abstract Reasoning": ["Image Analogy", "Story Game"],
+        "Fluid Reasoning": ["Image Sequence"]
+    }
+
+    scores = {key: [] for key in categories.keys()}
+
+    # Debug: Print the loaded JSON data
+    print("\nLoaded JSON Data:")
+    print(json.dumps(data, indent=2))
+
+    for record in data:
+        # Debug: Print each record being processed
+        print("\nProcessing Record:")
+        print(record)
+
+        game_name = record.get("Game", "")
+        weight = record.get("Weight", 1)
+        correct = record.get("Correct", 0)
+        incorrect = record.get("Incorrect", 0)
+        time_taken = record.get("Time Taken", 0)
+        total_time = record.get("Max Time", 60)  # Adjusted to "Max Time" based on JSON
+
+        # Debug: Check key extraction
+        print(f"Extracted values -> Game: {game_name}, Weight: {weight}, Correct: {correct}, Incorrect: {incorrect}, Time Taken: {time_taken}, Max Time: {total_time}")
+
+        # Validate data and handle missing or zero values
+        if not game_name or (correct == 0 and incorrect == 0):
+            print("Skipping invalid or incomplete record.")
+            continue
+
+        success_rate = correct / (correct + incorrect) if (correct + incorrect) > 0 else 0
+        normalized_time = min_max_normalization(time_taken, 0, total_time)
+        game_score = weight * success_rate * (1 - normalized_time)
+
+        # Debug: Print calculated game score
+        print(f"Calculated Score: {game_score}")
+
+        # Assign scores to appropriate categories
+        for category, games in categories.items():
+            if game_name in games:
+                scores[category].append(game_score)
+                print(f"Assigned score {game_score} to category {category}")
+
+    # Calculate average scores for each category
+    aggregated_scores = {
+        key: round(sum(value) / len(value), 2) if value else 0 for key, value in scores.items()
+    }
+
+    # Debug: Print category-wise scores
+    print("\nCategory Scores Before Aggregation:")
+    print(scores)
+
+    # Calculate overall concentration as the average of all scores
+    if aggregated_scores:
+        aggregated_scores["Concentration"] = round(sum(aggregated_scores.values()) / len(aggregated_scores), 2)
+
+    # Debug: Print final aggregated scores
+    print("\nFinal Aggregated Scores:")
+    print(aggregated_scores)
+
+    return aggregated_scores
+
+
+
+
+def draw_end_screen(screen, cognitive_scores):
+    """
+    Displays the end screen with calculated cognitive scores.
+    """
+    global current_score
+
+    screen.fill(WHITE)
+    title_surface = TITLE_FONT.render("Game Over!", True, BLACK)
+    screen.blit(title_surface, (WIDTH // 2 - title_surface.get_width() // 2, 100))
+
+    # Display final score
+    score_surface = FONT.render(f"Final Score: {current_score}", True, BLACK)
+    screen.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 200))
+
+    # Display cognitive scores
+    y_offset = 300
+    for key, value in cognitive_scores.items():
+        score_text = FONT.render(f"{key}: {value}", True, BLACK)
+        screen.blit(score_text, (WIDTH // 2 - score_text.get_width() // 2, y_offset))
+        y_offset += 50
+
+    # Event Handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+
+    pygame.display.update()
+
+
 
 
 def draw_main_menu(screen):
@@ -131,7 +252,7 @@ def draw_main_menu(screen):
                 elif start_button.collidepoint(x, y):
                     if player_name and player_age.isdigit():
                         # Create folder and CSV for the player
-                        csv_writer, csv_file_path = setup_player_folder_and_csv(player_name)
+                        csv_file_path = setup_player_folder_and_json(player_name)
                         print(f"CSV Writer ready: {csv_file_path}")
                         game_state = "GAMEPLAY"
 
@@ -171,14 +292,15 @@ def draw_bottom_bar(screen):
 
 
 def main():
-    global csv_file_path
     """
     Main function to manage the game loop and states.
     """
-    global game_state, current_score
+    global game_state, current_score, csv_file_path, current_game_name
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game Hub")
+
+    cognitive_bool = False
 
     while True:
         if game_state == "MAIN_MENU":
@@ -196,31 +318,36 @@ def main():
             game_surface = screen.subsurface(game_area)
 
             # Pass control to the game engine (only the game area is passed)
-            current_score = game_engine.run(game_surface, player_name, player_age, current_score, csv_file_path, WIDTH, GAME_HEIGHT)
+            current_score = game_engine.run(game_surface, player_name, player_age, current_score, json_file_path, WIDTH, GAME_HEIGHT)
             game_state = "END_SCREEN"
+        # elif game_state == "END_SCREEN":
+        #     # Display the end screen
+        #     screen.fill(WHITE)
+        #     title_surface = TITLE_FONT.render("Game Over!", True, BLACK)
+        #     screen.blit(title_surface, (WIDTH // 2 - title_surface.get_width() // 2, 100))
+        #     score_surface = FONT.render(f"Final Score: {current_score}", True, BLACK)
+        #     screen.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 200))
+
+        #     # Add Restart or Exit options
+        #     restart_button = pygame.Rect(WIDTH // 2 - 50, 300, 100, 50)
+        #     pygame.draw.rect(screen, BLACK, restart_button)
+        #     restart_text = FONT.render("Restart", True, WHITE)
+        #     screen.blit(restart_text, (restart_button.x + 10, restart_button.y + 10))
+
+        #     for event in pygame.event.get():
+        #         if event.type == pygame.QUIT:
+        #             pygame.quit()
+        #             exit()
+        #         elif event.type == pygame.MOUSEBUTTONDOWN:
+        #             if restart_button.collidepoint(event.pos):
+        #                 game_state = "MAIN_MENU"
+
+        #     pygame.display.update()
         elif game_state == "END_SCREEN":
-            # Display the end screen
-            screen.fill(WHITE)
-            title_surface = TITLE_FONT.render("Game Over!", True, BLACK)
-            screen.blit(title_surface, (WIDTH // 2 - title_surface.get_width() // 2, 100))
-            score_surface = FONT.render(f"Final Score: {current_score}", True, BLACK)
-            screen.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 200))
-
-            # Add Restart or Exit options
-            restart_button = pygame.Rect(WIDTH // 2 - 50, 300, 100, 50)
-            pygame.draw.rect(screen, BLACK, restart_button)
-            restart_text = FONT.render("Restart", True, WHITE)
-            screen.blit(restart_text, (restart_button.x + 10, restart_button.y + 10))
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if restart_button.collidepoint(event.pos):
-                        game_state = "MAIN_MENU"
-
-            pygame.display.update()
+            if not cognitive_bool:
+                cognitive_scores = calculate_cognitive_scores()
+                cognitive_bool = True
+            draw_end_screen(screen, cognitive_scores)
 
 
 if __name__ == "__main__":

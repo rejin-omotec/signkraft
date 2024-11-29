@@ -1,14 +1,19 @@
 import importlib
-import csv
+import json
+import os
 
-def run(screen, player_name, player_age, initial_score, csv_file_path, WIDTH, GAME_HEIGHT):
+import importlib
+import json
+import os
+
+def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, GAME_HEIGHT):
     """
     Runs the game engine, managing levels and score.
     :param screen: Pygame display surface.
     :param player_name: Name of the player.
     :param player_age: Age of the player.
     :param initial_score: Initial score passed from the main menu.
-    :param csv_file_path: Path to the CSV file to record game data.
+    :param json_file_path: Path to the JSON file to record game data.
     :param WIDTH: Width of the game area.
     :param GAME_HEIGHT: Height of the game area.
     :return: Final score after all levels.
@@ -17,8 +22,8 @@ def run(screen, player_name, player_age, initial_score, csv_file_path, WIDTH, GA
 
     levels = [
         # {"name": "Level 1", "module": "levels.level1"},
-        {"name": "Level 2", "module": "levels.level2"},
-        # {"name": "Level 3", "module": "levels.level3"},
+        # {"name": "Level 2", "module": "levels.level2"},
+        {"name": "Level 3", "module": "levels.level3"},
         # {"name": "Level 4", "module": "levels.level4"},
         # {"name": "Level 5", "module": "levels.level5"},
         # {"name": "Level 6", "module": "levels.level6"},
@@ -31,35 +36,40 @@ def run(screen, player_name, player_age, initial_score, csv_file_path, WIDTH, GA
 
     current_score = initial_score
 
-    # Open the CSV file for appending
-    with open(csv_file_path, mode="a", newline="") as csv_file:
-        writer = csv.writer(csv_file)
+    # Load existing JSON data or initialize a new list
+    if os.path.exists(json_file_path):
+        with open(json_file_path, mode="r") as json_file:
+            data = json.load(json_file)
+    else:
+        data = []
 
-        # Write headers if CSV is empty
-        if csv_file.tell() == 0:  # Check if the file is empty
-            writer.writerow(["Player Name", "Player Age", "Level Name", "Attempt Type", "Points", "Correct", "Incorrect", "Time Taken", "Max Time"])
+    for level in levels:
+        # Dynamically import the level module
+        level_module = importlib.import_module(level["module"])
 
-        for level in levels:
-            # Dynamically import the level module
-            level_module = importlib.import_module(level["module"])
+        print(f"Running {level['name']}...")
 
-            print(f"Running {level['name']}...")
+        # Run the level and get the results
+        result_list, points = level_module.run_game(screen, WIDTH, GAME_HEIGHT, win_width, win_height, max_attempts)
 
-            # Define a callback to update the score
-            def update_score(points):
-                nonlocal current_score
-                current_score += points
-                print(f"Current Score: {current_score}")
+        current_score += points
+        print(f"Current Score: {current_score}")
 
-            # Run the level and get the results
-            result_list = level_module.run_game(screen, update_score, WIDTH, GAME_HEIGHT, win_width, win_height, max_attempts)
-            
-            # Example result_list format: [["Attempt Type", 10, 2, 1, 45, 60], ["Attempt Type", 8, 1, 2, 50, 60], ...]
-            for attempt in result_list:
-                # Write each attempt to the CSV
-                row = [level["name"]] + attempt
-                writer.writerow(row)
-                print(f"Logged to CSV: {row}")
+
+        # Append each result to the JSON file with additional metadata
+        for attempt in result_list:
+            attempt_data = {
+                "Player Name": player_name,
+                "Player Age": player_age,
+                "Level Name": level["name"],
+                **attempt  # Unpack the JSON returned by the game level
+            }
+            data.append(attempt_data)
+            print(f"Logged to JSON: {attempt_data}")
+
+    # Save the updated data back to the JSON file
+    with open(json_file_path, mode="w") as json_file:
+        json.dump(data, json_file, indent=4)
 
     return current_score
 

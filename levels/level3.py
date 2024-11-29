@@ -5,7 +5,7 @@ import time
 import json
 
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the entire game with language selection, story display, audio playback, and questions.
     """
@@ -15,7 +15,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         with open(file_path, "r", encoding="utf-8") as file:
             return json.load(file)
 
-    def play_audio(audio):
+    # def play_audio(audio):
         """
         Play the audio narration of the story.
         """
@@ -52,22 +52,54 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             y += font.get_linesize() + 5
 
     def language_selection(surface, win_width, win_height):
-        """Display a language selection screen."""
+        """Display a language selection screen with mouse and keyboard functionality, accounting for subsurface offsets."""
+
         WHITE = (255, 255, 255)
         BLACK = (0, 0, 0)
+        HIGHLIGHT_COLOR = (200, 200, 200)  # Light gray for highlighting
         font = pygame.font.Font('fonts/Nirmala.ttf', 20)
 
         surface.fill(WHITE)
+
+        # Render text
         text_hindi = font.render("1. हिंदी", True, BLACK)
         text_english = font.render("2. English", True, BLACK)
+        text_hindi_rect = text_hindi.get_rect(center=(win_width // 2, win_height // 3))
+        text_english_rect = text_english.get_rect(center=(win_width // 2, win_height // 3 + 60))
 
-        surface.blit(text_hindi, (win_width // 2 - 100, win_height // 3))
-        surface.blit(text_english, (win_width // 2 - 100, win_height // 3 + 60))
-
-        pygame.display.update()
+        # Account for the subsurface offsets
+        subsurface_offset = surface.get_abs_offset()
 
         selected_language = None
+
+        def draw_screen(highlight_hindi, highlight_english):
+            """Draw the language selection screen with optional highlights."""
+            surface.fill(WHITE)  # Clear the surface
+            # Highlight Hindi
+            if highlight_hindi:
+                pygame.draw.rect(surface, HIGHLIGHT_COLOR, text_hindi_rect.inflate(10, 10))
+            surface.blit(text_hindi, text_hindi_rect)
+
+            # Highlight English
+            if highlight_english:
+                pygame.draw.rect(surface, HIGHLIGHT_COLOR, text_english_rect.inflate(10, 10))
+            surface.blit(text_english, text_english_rect)
+
+            pygame.display.update()
+
         while selected_language is None:
+            # Get mouse position
+            mouse_pos = pygame.mouse.get_pos()
+
+            # Adjust mouse position to subsurface coordinates
+            adjusted_mouse_pos = (mouse_pos[0] - subsurface_offset[0], mouse_pos[1] - subsurface_offset[1])
+
+            # Check if the adjusted mouse position is over any text
+            mouse_over_hindi = text_hindi_rect.collidepoint(adjusted_mouse_pos)
+            mouse_over_english = text_english_rect.collidepoint(adjusted_mouse_pos)
+
+            draw_screen(mouse_over_hindi, mouse_over_english)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -77,7 +109,15 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                         selected_language = "Hindi"
                     elif event.key == pygame.K_2:
                         selected_language = "English"
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if mouse_over_hindi:
+                        selected_language = "Hindi"
+                    elif mouse_over_english:
+                        selected_language = "English"
+
         return selected_language
+
+
     
     def instruction_screen(surface, screen_width, screen_height):
         """
@@ -128,7 +168,9 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    sys.exit()
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                        running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:  # Proceed to the next screen
                         running = False
@@ -184,7 +226,7 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         pygame.display.update()
 
         # Play audio narration
-        play_audio(audio)
+        # play_audio(audio)
 
         # Wait for user to proceed after audio playback
         story_read = False
@@ -237,7 +279,6 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                             is_correct = question["options"][selected_option] == question["answer"]
                             if is_correct:
                                 score += 1
-                                update_score_callback(1)
                                 results.append([
                                     "Story Game",
                                     weights[story_attempts],  # Weight based on story number
@@ -271,4 +312,4 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         pygame.display.update()
         pygame.time.wait(2000)
 
-    return results
+    return results, score

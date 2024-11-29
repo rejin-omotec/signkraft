@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Memory Recall game inside the given surface.
 
@@ -210,8 +210,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:  # Proceed to the game
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
                         running = False
 
             # Update the screen
@@ -241,7 +241,15 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         # Get player's input
         player_input, time_taken = get_player_input(len(sequence))
         if player_input is None:  # User quits or times out
-            results.append(["Memory Recall", weights[attempts], 0, 1, time_taken, 60])
+            results.append({
+                "Game": "Memory Recall",
+                "Attempt Type": "Timeout",
+                "Points": 0,
+                "Correct": 0,
+                "Incorrect": 1,
+                "Time Taken": time_taken,
+                "Max Time": 60
+            })
             attempts += 1
             continue
 
@@ -249,11 +257,18 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         if player_input == sequence:
             score += 1
             correct_counter += 1
-            update_score_callback(score)  # Update the main menu score
-            
+
             # Record result as correct attempt
-            results.append(["Memory Recall", weights[attempts], 1, 0, time_taken, 60])
-            
+            results.append({
+                "Game": "Memory Recall",
+                "Attempt Type": "Success",
+                "Points": weights[attempts],
+                "Correct": 1,
+                "Incorrect": 0,
+                "Time Taken": time_taken,
+                "Max Time": 60
+            })
+
             # Generate a new sequence with one additional random shape
             sequence_length += 1
             sequence = [random.choice(shapes) for _ in range(sequence_length)]
@@ -268,7 +283,15 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         else:
             incorrect_counter += 1
             # Record result as incorrect attempt
-            results.append(["Memory Recall", weights[attempts], 0, 1, time_taken, 60])
+            results.append({
+                "Game": "Memory Recall",
+                "Attempt Type": "Failure",
+                "Points": 0,
+                "Correct": 0,
+                "Incorrect": 1,
+                "Time Taken": time_taken,
+                "Max Time": 60
+            })
 
             # Display feedback for incorrect answer
             surface.fill(BLACK)
@@ -281,4 +304,4 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         attempts += 1
 
     print("ending")
-    return results
+    return results, score

@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Cause and Effect MCQ game inside the provided surface.
 
@@ -107,9 +107,8 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:  # Proceed to the next screen
+                # if any mouse button is pressed, proceed to the next screen
+                if event.type == pygame.MOUSEBUTTONDOWN:
                         running = False
 
             # Update the screen
@@ -180,11 +179,24 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                                 if selected_option == correct_cause:
                                     feedback = "Correct!"
                                     score += 1
-                                    update_score_callback(1)  # Update global score
-                                    results.append(["Cause and Effect", weights[attempts], 1, time_taken, 60])
+                                    results.append({
+                                        "Game": "Cause and Effect",
+                                        "Weight": weights[attempts],
+                                        "Correct": 1,
+                                        "Incorrect": 0,
+                                        "Time Taken": time_taken,
+                                        "Max Time": 60
+                                    })
                                 else:
                                     feedback = f"Incorrect! The correct cause was: {correct_cause}"
-                                    results.append(["Cause and Effect", weights[attempts], 0, time_taken, 60])
+                                    results.append({
+                                        "Game": "Cause and Effect",
+                                        "Weight": weights[attempts],
+                                        "Correct": 0,
+                                        "Incorrect": 1,
+                                        "Time Taken": time_taken,
+                                        "Max Time": 60
+                                    })
 
                                 show_feedback = True
                                 feedback_time = pygame.time.get_ticks()
@@ -234,7 +246,14 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         # Check if the attempt has exceeded 60 seconds
         if time.time() - start_time > 60 and not show_feedback:
             # Record timeout as an incorrect attempt
-            results.append(["Cause and Effect", weights[attempts], 0, 60, 60])
+            results.append({
+                "Game": "Cause and Effect",
+                "Weight": weights[attempts],
+                "Correct": 0,
+                "Incorrect": 1,
+                "Time Taken": 60,
+                "Max Time": 60
+            })
             attempts += 1
             current_index += 1
             options_generated = False
@@ -242,5 +261,5 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
         pygame.display.update()
         clock.tick(30)
 
-    # Return detailed results for each attempt
-    return results
+    # Return detailed results as a list of dictionaries
+    return results, score
