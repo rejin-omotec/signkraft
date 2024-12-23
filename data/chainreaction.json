@@ -1,0 +1,74 @@
+[
+    {
+        "language": "Hindi",
+        "question": "बच्चा सुबह जल्दी उठा। उसके बाद क्या हुआ?",
+        "options": ["वह स्कूल समय पर पहुँच गया।", "वह देर से स्कूल पहुँचा।", "वह स्कूल नहीं गया।", "वह घर पर ही रहा।"],
+        "answer": "वह स्कूल समय पर पहुँच गया।"
+    },
+    {
+        "language": "Hindi",
+        "question": "पंखा बंद कर दिया गया। इसके बाद क्या हुआ?",
+        "options": ["कमरे में गर्मी बढ़ गई।", "कमरे में ठंडक बनी रही।", "कमरे में हवा आई।", "कमरे में अंधेरा हो गया।"],
+        "answer": "कमरे में गर्मी बढ़ गई।"
+    },
+    {
+        "language": "Hindi",
+        "question": "बारिश हो रही थी। इसके कारण क्या हुआ?",
+        "options": ["लोगों ने छाता इस्तेमाल किया।", "लोग भीगते हुए चले गए।", "लोग घर में ही रहे।", "लोग जल्दी घर लौट आए।"],
+        "answer": "लोगों ने छाता इस्तेमाल किया।"
+    },
+    {
+        "language": "Hindi",
+        "question": "सड़क पर ट्रैफिक जाम था। इसके बाद क्या हुआ?",
+        "options": ["सभी लोग देर से ऑफिस पहुँचे।", "सभी लोग समय पर पहुँचे।", "लोग घर लौट आए।", "लोग रास्ता बदलकर चले गए।"],
+        "answer": "सभी लोग देर से ऑफिस पहुँचे।"
+    },
+    {
+        "language": "Hindi",
+        "question": "माँ ने स्वादिष्ट खाना बनाया। इसके परिणामस्वरूप क्या हुआ?",
+        "options": ["पूरा परिवार खुश हो गया।", "परिवार ने खाना नहीं खाया।", "परिवार ने माँ की तारीफ की।", "परिवार ने खाना छोड़ दिया।"],
+        "answer": "पूरा परिवार खुश हो गया।"
+    },
+    {
+        "language": "Hindi",
+        "question": "बच्चे ने अपना होमवर्क समय पर किया। इसके बाद क्या हुआ?",
+        "options": ["शिक्षक ने उसकी प्रशंसा की।", "शिक्षक ने उसे डांटा।", "शिक्षक ने उसका होमवर्क वापस कर दिया।", "शिक्षक ने उसे नया होमवर्क दिया।"],
+        "answer": "शिक्षक ने उसकी प्रशंसा की।"
+    },
+    {
+        "language": "English",
+        "question": "The child woke up early in the morning. What happened next?",
+        "options": ["He reached school on time.", "He reached school late.", "He didn't go to school.", "He stayed at home."],
+        "answer": "He reached school on time."
+    },
+    {
+        "language": "English",
+        "question": "The fan was turned off. What happened as a result?",
+        "options": ["The room became warmer.", "The room stayed cool.", "The room became uncomfortable.", "The room became darker."],
+        "answer": "The room became warmer."
+    },
+    {
+        "language": "English",
+        "question": "It was raining. What happened because of that?",
+        "options": ["People used umbrellas.", "People got wet while walking.", "People stayed at home.", "People ran inside stores."],
+        "answer": "People used umbrellas."
+    },
+    {
+        "language": "English",
+        "question": "There was a traffic jam on the road. What happened as a result?",
+        "options": ["Everyone reached the office late.", "Everyone reached the office on time.", "People turned back home.", "People started walking."],
+        "answer": "Everyone reached the office late."
+    },
+    {
+        "language": "English",
+        "question": "Mom cooked a delicious meal. What was the outcome?",
+        "options": ["The entire family was happy.", "The family didn't eat the meal.", "The family complimented Mom.", "The family felt unwell."],
+        "answer": "The entire family was happy."
+    },
+    {
+        "language": "English",
+        "question": "The student completed homework on time. What happened after that?",
+        "options": ["The teacher praised him.", "The teacher scolded him.", "The teacher returned the homework.", "The teacher gave him more work."],
+        "answer": "The teacher praised him."
+    }
+]
