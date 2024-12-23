@@ -5,6 +5,7 @@ import game_engine  # Import the game engine
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+import cv2
 
 
 # Initialize Pygame
@@ -29,8 +30,8 @@ TITLE_FONT = pygame.font.Font(None, 48)
 # Global state
 player_name = ""
 player_age = ""
-# game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
-game_state = "GAMEPLAY"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+# game_state = "GAMEPLAY"  # MAIN_MENU, GAMEPLAY, END_SCREEN
 current_score = 0
 current_game_name = "Game Hub"
 
@@ -267,9 +268,6 @@ def draw_end_screen(screen, cognitive_scores, radar_image_path):
 
 
 
-
-
-
 def draw_main_menu(screen):
     """
     Displays the main menu, collects player details, and handles navigation.
@@ -279,9 +277,77 @@ def draw_main_menu(screen):
     name_rect = pygame.Rect(300, 200, 200, 40)
     age_rect = pygame.Rect(300, 300, 200, 40)
     start_button = pygame.Rect(WIDTH // 2 - 50, 400, 100, 50)
+    video_button = pygame.Rect(WIDTH // 2 - 125, 480, 250, 50)  # Adjusted button size
     input_active = {"name": False, "age": False}
+    showing_video = False
+
+    # Load the instructional video
+    video_path = "data/instruction.mp4"
+    video_capture = None
+    video_original_width = 0
+    video_original_height = 0
+    if os.path.exists(video_path):
+        video_capture = cv2.VideoCapture(video_path)
+        video_fps = int(video_capture.get(cv2.CAP_PROP_FPS))
+        video_original_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        video_original_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    else:
+        print("Instructional video not found.")
+
+    # Clock for controlling video playback speed
+    clock = pygame.time.Clock()
 
     while game_state == "MAIN_MENU":
+        if showing_video:
+            if video_capture and video_capture.isOpened():
+                # Grab the next frame from the video
+                ret, frame = video_capture.read()
+                if not ret:
+                    # If no frame is returned, video is done or error occurred
+                    showing_video = False
+                    video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Restart video
+                    continue
+
+                # Calculate the aspect ratio and scale factor
+                video_aspect_ratio = video_original_width / video_original_height
+                screen_aspect_ratio = WIDTH / HEIGHT
+                if video_aspect_ratio > screen_aspect_ratio:
+                    scale_factor = WIDTH / video_original_width
+                else:
+                    scale_factor = HEIGHT / video_original_height
+
+                # Resize the frame while maintaining aspect ratio
+                new_width = int(video_original_width * scale_factor)
+                new_height = int(video_original_height * scale_factor)
+                frame = cv2.resize(frame, (new_width, new_height))
+
+                # Convert the frame to a Pygame Surface
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert color to RGB
+                frame_surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
+
+                # Center the frame on the screen
+                frame_x = (WIDTH - new_width) // 2
+                frame_y = (HEIGHT - new_height) // 2
+                screen.blit(frame_surface, (frame_x, frame_y))
+
+            # Display the skip button
+            skip_button = pygame.Rect(WIDTH - 120, HEIGHT - 50, 100, 40)
+            pygame.draw.rect(screen, RED, skip_button)
+            skip_text = FONT.render("Skip", True, WHITE)
+            screen.blit(skip_text, (skip_button.x + 10, skip_button.y + 5))
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if skip_button.collidepoint(event.pos):
+                        showing_video = False
+
+            pygame.display.update()
+            clock.tick(video_fps)  # Limit to video FPS
+            continue
+
         screen.fill(WHITE)
 
         # Title
@@ -309,6 +375,13 @@ def draw_main_menu(screen):
         start_text = FONT.render("Start", True, WHITE)
         screen.blit(start_text, (start_button.x + 10, start_button.y + 10))
 
+        # Instructional Video Button
+        pygame.draw.rect(screen, BLUE, video_button)
+        video_text = FONT.render("Watch Instructions", True, WHITE)
+        text_x = video_button.x + (video_button.width - video_text.get_width()) // 2
+        text_y = video_button.y + (video_button.height - video_text.get_height()) // 2
+        screen.blit(video_text, (text_x, text_y))
+
         # Event Handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -325,10 +398,10 @@ def draw_main_menu(screen):
                     input_active["age"] = True
                 elif start_button.collidepoint(x, y):
                     if player_name and player_age.isdigit():
-                        # Create folder and CSV for the player
-                        csv_file_path = setup_player_folder_and_json(player_name)
-                        print(f"CSV Writer ready: {csv_file_path}")
+                        setup_player_folder_and_json(player_name)
                         game_state = "GAMEPLAY"
+                elif video_button.collidepoint(x, y):
+                    showing_video = True
 
             if event.type == pygame.KEYDOWN:
                 if input_active["name"]:
@@ -343,6 +416,7 @@ def draw_main_menu(screen):
                         player_age += event.unicode
 
         pygame.display.update()
+
 
 
 def draw_status_bar(screen):
