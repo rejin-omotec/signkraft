@@ -29,7 +29,9 @@ TITLE_FONT = pygame.font.Font(None, 48)
 # Global state
 player_name = ""
 player_age = ""
-game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+# game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+game_state = "GAMEPLAY"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+
 current_score = 0
 current_game_name = "Game Hub"
 
