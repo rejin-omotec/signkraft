@@ -23,7 +23,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Define shapes and their positions based on the level dimensions
     shape_size = 60
-    shapes = ['circle', 'square', 'triangle', 'rectangle']
+    shapes = ['circle', 'square', 'triangle']
     shape_positions = {
         'circle': (level_width // 4, level_height // 2),
         'square': (level_width // 2, level_height // 2),
@@ -53,10 +53,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 (pos[0] - shape_size // 2, pos[1] + shape_size // 2),
                 (pos[0] + shape_size // 2, pos[1] + shape_size // 2)
             ])
-        elif shape == 'rectangle':
-            pygame.draw.rect(surface, color, pygame.Rect(
-                pos[0] - shape_size, pos[1] - shape_size // 2, shape_size * 2, shape_size
-            ))
+        
 
     def show_sequence(sequence, mode):
         """Show the sequence to the player one shape at a time."""
@@ -107,7 +104,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 x_offset = level_width // 2 - 150
                 for j, item in enumerate(option):
                     if mode == 'shapes':
-                        draw_shape(item, WHITE, (x_offset + j * 100, y_offset))
+                        draw_shape(item, shape_colors.get(item, WHITE), (x_offset + j * 100, y_offset))
                     elif mode == 'colors':
                         pygame.draw.rect(surface, item, pygame.Rect(
                             x_offset + j * 100 - shape_size // 2, y_offset - shape_size // 2, shape_size, shape_size
@@ -118,8 +115,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
                 # Highlight selected option
                 if i == selected_index:
-                    pygame.draw.rect(surface, GREEN, pygame.Rect(
-                        x_offset - 20, y_offset - shape_size, len(option) * 100 + 40, shape_size + 40), 2
+                    pygame.draw.rect(surface, GRAY, pygame.Rect(
+                        x_offset - 50, y_offset - shape_size // 2 - 10, len(option) * 85 + 50, shape_size + 20), 2
                     )
 
             # Draw the submit button
@@ -154,43 +151,43 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                         return options[selected_index]
 
     def instruction_screen():
-        """Displays the instruction screen."""
-        font = pygame.font.SysFont(None, 30)
-        surface.fill(WHITE)
+            """Displays the instruction screen."""
+            font = pygame.font.SysFont(None, 30)
+            surface.fill(WHITE)
 
-        instructions = [
-            "Welcome to Level 1!",
-            "In this game, you will see a sequence of shapes or colors.",
-            "Pay attention to the sequence shown on the screen.",
-            "After the sequence, choose the correct option from the MCQ.",
-            "Use arrow keys to navigate and Enter to submit, or use touch."
-        ]
+            instructions = [
+                "Welcome to Level 1!",
+                "In this game, you will see a sequence of shapes or colors.",
+                "Pay attention to the sequence shown on the screen.",
+                "After the sequence, choose the correct option from the MCQ.",
+                "Use arrow keys to navigate and Enter to submit, or use touch."
+            ]
 
-        y_offset = 100
-        for line in instructions:
-            text = font.render(line, True, BLACK)
-            surface.blit(text, (50, y_offset))
-            y_offset += 40
+            y_offset = 100
+            for line in instructions:
+                text = font.render(line, True, BLACK)
+                surface.blit(text, (50, y_offset))
+                y_offset += 40
 
-        prompt_text = font.render("Press Enter to Start", True, RED)
-        surface.blit(prompt_text, (level_width // 2 - prompt_text.get_width() // 2, level_height - 100))
+            prompt_text = font.render("Press Enter to Start", True, RED)
+            surface.blit(prompt_text, (level_width // 2 - prompt_text.get_width() // 2, level_height - 100))
 
-        pygame.display.update()
+            pygame.display.update()
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return None
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-                    return
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        return None
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                        return
 
     # Show instructions
     instruction_screen()
 
     # Select a random mode
     game_modes = ['shapes', 'colors', 'colored_shapes']
-    mode = random.choice(game_modes)
+    
 
     # Game variables
     sequence_length = 3
@@ -201,6 +198,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     max_attempts = max_attempts_arg
 
     while attempts < max_attempts:
+        mode = game_modes[attempts % len(game_modes)]  # Cycle through modes for each attempt
         if mode == 'shapes':
             sequence = [random.choice(shapes) for _ in range(sequence_length)]
         elif mode == 'colors':

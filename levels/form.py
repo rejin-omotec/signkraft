@@ -81,10 +81,25 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 return None  # Exit the game loop entirely
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                # Get the absolute offset of the game surface
+                abs_offset = surface.get_abs_offset()
+
+                # Adjust mouse position to match the game surface
                 x, y = event.pos
+                x -= abs_offset[0]
+                y -= abs_offset[1]
+
+                # First check input boxes
+                input_clicked = False
                 for key, field in input_fields.items():
-                    field["active"] = field["rect"].collidepoint(x, y)
-                if submit_button.collidepoint(x, y):
+                    if field["rect"].collidepoint(x, y):
+                        field["active"] = True
+                        input_clicked = True
+                    else:
+                        field["active"] = False
+
+                # Then check the submit button if no input box was clicked
+                if not input_clicked and submit_button.collidepoint(x, y):
                     inputs_collected = True
 
             if event.type == pygame.KEYDOWN:
@@ -96,6 +111,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             field["active"] = False
                         else:
                             field["value"] += event.unicode
+
 
         if inputs_collected:
             # Collect data from all fields

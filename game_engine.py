@@ -21,7 +21,7 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     max_attempts = 3
 
     levels = [
-        {"name": "Form", "module": "levels.form"},
+        # {"name": "Form", "module": "levels.form"},
         {"name": "Level 1", "module": "levels.level1"},
         {"name": "Level 2", "module": "levels.level2"},
         {"name": "Level 3", "module": "levels.level3"},
