@@ -23,8 +23,8 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     levels = [
         # {"name": "Form", "module": "levels.form"},
         {"name": "Level 1", "module": "levels.level1"},
-        {"name": "Level 2", "module": "levels.level2"},
-        {"name": "Level 3", "module": "levels.level3"},
+        # {"name": "Level 2", "module": "levels.level2"},
+        # {"name": "Level 3", "module": "levels.level3"},
         # {"name": "Level 4", "module": "levels.level4"},
         # {"name": "Level 5", "module": "levels.level5"},
         # {"name": "Level 6", "module": "levels.level6"},
