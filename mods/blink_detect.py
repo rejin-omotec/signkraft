@@ -2,7 +2,6 @@ import cv2
 import mediapipe as mp
 from math import sqrt
 import threading
-import pygame
 import queue
 import time
 
@@ -14,11 +13,13 @@ class BlinkDetectionThread(threading.Thread):
 
         # Adjusted thresholds based on observed ratios
         self.HIGH_THRESHOLD = 4.1
-        self.LOW_THRESHOLD = 3.6
+        self.LOW_THRESHOLD = 3.1
+        self.COOLDOWN_PERIOD = 1.0  # Cooldown period in seconds for single blinks
 
         # Blink state
         self.eyes_closed = False
         self.last_blink_time = 0
+        self.last_single_blink_time = 0  # Tracks last single blink time
 
         # Mediapipe initialization
         self.LEFT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398]
@@ -68,7 +69,6 @@ class BlinkDetectionThread(threading.Thread):
         right_eye_ratio = right_eye_horizontal_distance / right_eye_vertical_distance
         left_eye_ratio = left_eye_horizontal_distance / left_eye_vertical_distance
 
-
         return (right_eye_ratio + left_eye_ratio) / 2
 
     def run(self):
@@ -105,10 +105,13 @@ class BlinkDetectionThread(threading.Thread):
                         self.blink_queue.put("DOUBLE_BLINK")
                         print("Double Blink Detected")
                         blink_detected = True
-                    else:
+                    elif current_time - self.last_single_blink_time >= self.COOLDOWN_PERIOD:
+                        # Emit single blink only if cooldown has passed
                         self.blink_queue.put("SINGLE_BLINK")
                         print("Single Blink Detected")
                         blink_detected = True
+                        self.last_single_blink_time = current_time
+
                     self.last_blink_time = current_time
 
             # If no blink was detected, send an empty string
@@ -123,7 +126,6 @@ class BlinkDetectionThread(threading.Thread):
 
         self.video_capture.release()
         cv2.destroyAllWindows()
-
 
     def stop(self):
         self.stop_thread = True
