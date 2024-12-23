@@ -63,7 +63,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         feedback = ""
         feedback_time = 0
 
-        clock = pygame.time.Clock()
+        # clock = pygame.time.Clock()
         running = True
 
         while running:
@@ -86,18 +86,31 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             try:
                 blink_message = blink_queue.get_nowait()
                 if blink_message == "SINGLE_BLINK":
+                    print("Single Blink Detected - Pygame")
                     selected_index = (selected_index + 1) % len(options)
                 elif blink_message == "DOUBLE_BLINK":
-                    submit_pressed = True
+                    print("Double Blink Detected - Pygame")
+                    submit_pressed = True  # Ensure double blink sets submit_pressed
             except queue.Empty:
                 pass
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return None
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_DOWN:
+                        selected_index = (selected_index + 1) % len(options)
+                    elif event.key == pygame.K_RETURN:
+                        submit_pressed = True  # Key-based submit remains unchanged
 
             if submit_pressed:
                 running = False
 
-            clock.tick(30)
+            # clock.tick(30)
 
         return options[selected_index]
+
 
     def instruction_screen():
         """Displays the instruction screen."""
