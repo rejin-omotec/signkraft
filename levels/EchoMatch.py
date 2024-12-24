@@ -3,12 +3,20 @@ import random
 import queue
 import time
 from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same BlinkDetectionThread used in Level 2
+from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
+
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     # Blink detection setup
     blink_queue = queue.Queue(maxsize=10)
     blink_thread = BlinkDetectionThread(blink_queue)
     blink_thread.start()  # Start the blink detection thread
+
+    # speech detection setup
+    speech_queue = queue.Queue(maxsize=10)
+    speech_thread = SpeechRecognitionThread(audio_queue=speech_queue, language="english")
+    speech_thread.start()
+
 
     # Define colors
     WHITE = (255, 255, 255)
@@ -83,6 +91,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
             pygame.display.update()
 
+            # Blink Control
             try:
                 blink_message = blink_queue.get_nowait()
                 if blink_message == "SINGLE_BLINK":
@@ -93,7 +102,23 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                     submit_pressed = True  # Ensure double blink sets submit_pressed
             except queue.Empty:
                 pass
+            
+            # Speech Control
+            try:
+                if not speech_queue.empty():
+                    command = speech_queue.get(block=False)
+                    print(f"Recognized command: {command}")
+                    if command == "down":
+                        selected_index = (selected_index + 1) % len(options)
+                    elif command == "up":
+                        selected_index = (selected_index - 1) % len(options)
+                    elif command == "select":
+                        submit_pressed = True  # Ensure double blink sets submit_pressed
+            except queue.Empty:
+                pass
 
+
+            # Keyboard Control
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -101,6 +126,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_DOWN:
                         selected_index = (selected_index + 1) % len(options)
+                    elif event.key == pygame.K_UP:
+                        selected_index = (selected_index - 1) % len(options)
                     elif event.key == pygame.K_RETURN:
                         submit_pressed = True  # Key-based submit remains unchanged
 

@@ -23,7 +23,7 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     levels = [
         # {"name": "Form", "module": "levels.form"},
         # {"name": "Level 1", "module": "levels.EchoMatch"},
-        # {"name": "Level 6", "module": "levels.PicChime"},
+        {"name": "Level 6", "module": "levels.PicChime"},
         # {"name": "Level 3", "module": "levels.StoryWeaver"},
         # {"name": "Level 8", "module": "levels.BlockMorph"},
         # {"name": "Level 2", "module": "levels.ChainReaction"},
@@ -33,7 +33,7 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
         # {"name": "Level 4", "module": "levels.level4"},
         # {"name": "Level 5", "module": "levels.QuickAudio"},
         # {"name": "Level 7", "module": "levels.level7"},
-        {"name": "Level 12", "module": "levels.SpotTheDifference"},
+        # {"name": "Level 12", "module": "levels.SpotTheDifference"},
     ]
 
 

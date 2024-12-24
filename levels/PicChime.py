@@ -4,6 +4,7 @@ import sys
 from pygame.locals import *
 import queue
 from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same BlinkDetectionThread used in Level 2
+from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
 
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
@@ -21,6 +22,11 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     blink_queue = queue.Queue(maxsize=10)
     blink_thread = BlinkDetectionThread(blink_queue)
     blink_thread.start()  # Start the blink detection thread
+
+    # speech detection setup
+    speech_queue = queue.Queue(maxsize=10)
+    speech_thread = SpeechRecognitionThread(audio_queue=speech_queue, language="english")
+    speech_thread.start()
 
 
     # Set up fonts
@@ -173,22 +179,43 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
             pygame.display.update()
 
-            # Handle blink input
-            try:
-                blink_message = blink_queue.get_nowait()
-                if blink_message == "SINGLE_BLINK":
-                    print("Single Blink Detected - Pygame")
-                    current_index = (current_index + 1) % len(scaled_images)  # Navigate to the next image
-                elif blink_message == "DOUBLE_BLINK":
-                    print("Double Blink Detected - Pygame")
-                    if current_index in selected_images:
-                        selected_images.remove(current_index)
-                    else:
-                        selected_images.append(current_index)
+            # # Handle blink input
+            # try:
+            #     blink_message = blink_queue.get_nowait()
+            #     if blink_message == "SINGLE_BLINK":
+            #         print("Single Blink Detected - Pygame")
+            #         current_index = (current_index + 1) % len(scaled_images)  # Navigate to the next image
+            #     elif blink_message == "DOUBLE_BLINK":
+            #         print("Double Blink Detected - Pygame")
+            #         if current_index in selected_images:
+            #             selected_images.remove(current_index)
+            #         else:
+            #             selected_images.append(current_index)
 
-                    # Automatically end selection phase once enough images are selected
-                    if len(selected_images) == sequence_length:
-                        running = False
+            #         # Automatically end selection phase once enough images are selected
+            #         if len(selected_images) == sequence_length:
+            #             running = False
+            # except queue.Empty:
+            #     pass
+
+            # Speech Control
+            try:
+                if not speech_queue.empty():
+                    command = speech_queue.get(block=False)
+                    print(f"Recognized command: {command}")
+                    if command == "next":
+                        current_index = (current_index + 1) % len(scaled_images)
+                    elif command == "previous":
+                        current_index = (current_index - 1) % len(scaled_images)
+                    elif command == "select":
+                        if current_index in selected_images:
+                            selected_images.remove(current_index)
+                        else:
+                            selected_images.append(current_index)
+
+                        # Automatically end selection phase once enough images are selected
+                        if len(selected_images) == sequence_length:
+                            running = False
             except queue.Empty:
                 pass
 
