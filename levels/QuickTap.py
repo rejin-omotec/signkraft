@@ -74,8 +74,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
         # Instruction text
         instructions = (
-            "1. When an object appears on the screen, tap on it quickly.",
-            "2. The faster you tap, the higher your score."
+            "1. Multiple symbols will be displayed. Pay attention to when the $ sign appears",
+            "2. When the $ symbol appears, blink",
+            "3. Do not blink when any other symbols show"
         )
 
         # Flag to keep the screen running
@@ -180,7 +181,6 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             # Ensure mole doesn't spawn in the top reserved area (RESERVED_HEIGHT)
 
             symbol = random.choice(symbols)
-            print(symbol)
             render_text(surface, symbol, pygame.font.SysFont(None, 100), WHITE, 270, 100, 600)
             mole_appeared_time = current_time
             total_moles += 1
@@ -224,13 +224,13 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     pygame.display.update()
     pygame.time.wait(2000)
 
-    result = {
+    result = [{
         "name": "QuickTap",
         "Weight": 1.0,
         "Correct": correct,
         "Incorrect": incorrect,
         "Average Response Time": reponse_time_sum/(correct + incorrect),
-    }
+    }]
 
     return result, correct
 
