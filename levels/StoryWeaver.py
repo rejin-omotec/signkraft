@@ -5,6 +5,7 @@ import time
 import json
 import queue
 from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same BlinkDetectionThread used in Level 2
+from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
 
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
@@ -16,6 +17,11 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     blink_queue = queue.Queue(maxsize=10)
     blink_thread = BlinkDetectionThread(blink_queue)
     blink_thread.start()  # Start the blink detection thread
+
+    # speech detection setup
+    speech_queue = queue.Queue(maxsize=10)
+    speech_thread = SpeechRecognitionThread(audio_queue=speech_queue, language="english")
+    speech_thread.start()
 
 
     # Load the JSON file
@@ -322,44 +328,90 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
                 pygame.display.update()
 
-                # Handle events
+                # Handle events - Blink detection
+                # try:
+                #     blink_message = blink_queue.get_nowait()
+                #     if blink_message == "SINGLE_BLINK":
+                #         print("Single Blink Detected")
+                #         if hovered_option is None:
+                #             hovered_option = 0  # Default to the first option if none is highlighted
+                #         else:
+                #             hovered_option = (hovered_option + 1) % len(question["options"])  # Move to next option
+                #     elif blink_message == "DOUBLE_BLINK" and hovered_option is not None:
+                #         print("Double Blink Detected")
+                #         selected_option = hovered_option  # Select the current option
+                #         time_taken = time.time() - start_time
+                #         is_correct = question["options"][selected_option] == question["answer"]
+                #         if is_correct:
+                #             score += 1
+                #             results.append({
+                #                 "Game": "Story Game",
+                #                 "Weight": weights[story_attempts],
+                #                 "Correct": 1,
+                #                 "Incorrect": 0,
+                #                 "Time Taken": time_taken,
+                #                 "Max Time": 60
+                #             })
+                #         else:
+                #             results.append({
+                #                 "Game": "Story Game",
+                #                 "Weight": weights[story_attempts],
+                #                 "Correct": 0,
+                #                 "Incorrect": 1,
+                #                 "Time Taken": time_taken,
+                #                 "Max Time": 60
+                #             })
+                #         current_question += 1
+                #         break
+                # except queue.Empty:
+                #     pass
+
+
+                # Handle events - Speech detection
                 try:
-                    blink_message = blink_queue.get_nowait()
-                    if blink_message == "SINGLE_BLINK":
-                        print("Single Blink Detected")
-                        if hovered_option is None:
-                            hovered_option = 0  # Default to the first option if none is highlighted
-                        else:
-                            hovered_option = (hovered_option + 1) % len(question["options"])  # Move to next option
-                    elif blink_message == "DOUBLE_BLINK" and hovered_option is not None:
-                        print("Double Blink Detected")
-                        selected_option = hovered_option  # Select the current option
-                        time_taken = time.time() - start_time
-                        is_correct = question["options"][selected_option] == question["answer"]
-                        if is_correct:
-                            score += 1
-                            results.append({
-                                "Game": "Story Game",
-                                "Weight": weights[story_attempts],
-                                "Correct": 1,
-                                "Incorrect": 0,
-                                "Time Taken": time_taken,
-                                "Max Time": 60
-                            })
-                        else:
-                            results.append({
-                                "Game": "Story Game",
-                                "Weight": weights[story_attempts],
-                                "Correct": 0,
-                                "Incorrect": 1,
-                                "Time Taken": time_taken,
-                                "Max Time": 60
-                            })
-                        current_question += 1
-                        break
+                    if not speech_queue.empty():
+                        command = speech_queue.get(block=False)
+                        print(f"Recognized command: {command}")
+                        if command == "down":
+                            if hovered_option is None:
+                                hovered_option = 0  # Default to the first option if none is highlighted
+                            else:
+                                hovered_option = (hovered_option + 1) % len(question["options"])  # Move to next option
+                        elif command == "up":
+                            if hovered_option is None:
+                                hovered_option = 0  # Default to the first option if none is highlighted
+                            else:
+                                hovered_option = (hovered_option - 1) % len(question["options"])  # Move to next option
+                        elif command == "select" and hovered_option is not None:
+                            selected_option = hovered_option  # Select the current option
+                            time_taken = time.time() - start_time
+                            is_correct = question["options"][selected_option] == question["answer"]
+                            if is_correct:
+                                score += 1
+                                results.append({
+                                    "Game": "Story Game",
+                                    "Weight": weights[story_attempts],
+                                    "Correct": 1,
+                                    "Incorrect": 0,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                                })
+                            else:
+                                results.append({
+                                    "Game": "Story Game",
+                                    "Weight": weights[story_attempts],
+                                    "Correct": 0,
+                                    "Incorrect": 1,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                                })
+                            current_question += 1
+                            break
                 except queue.Empty:
                     pass
 
+                
+                # Handle events - Keyboard and Mouse
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()

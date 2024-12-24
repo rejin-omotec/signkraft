@@ -47,7 +47,7 @@ class SpeechRecognitionThread(threading.Thread):
         # Tracking results
         self.last_result = ""
         self.last_result_time = time.time()
-        self.result_threshold = 1  # Time threshold in seconds
+        self.result_threshold = 1.5  # Time threshold in seconds
 
     def run(self):
         print("Speech Recognition Started!")
