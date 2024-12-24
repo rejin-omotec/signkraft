@@ -1,0 +1,1 @@
+max_time = 15 # maxiimuam time for each attempt in a game
