@@ -102,12 +102,26 @@ class BlinkDetectionThread(threading.Thread):
 
                     # Blink detected
                     if current_time - self.last_blink_time < 1:  # Double blink threshold
-                        self.blink_queue.put("DOUBLE_BLINK")
+                        
+                        # self.blink_queue.put("DOUBLE_BLINK")
+                        try:
+                            self. blink_queue.put("DOUBLE_BLINK", block=False)  # Non-blocking put
+                        except queue.Full:
+                            # print("Queue is full. Dropping item.")
+                            pass
+
                         print("Double Blink Detected")
                         blink_detected = True
                     elif current_time - self.last_single_blink_time >= self.COOLDOWN_PERIOD:
+
                         # Emit single blink only if cooldown has passed
-                        self.blink_queue.put("SINGLE_BLINK")
+                        # self.blink_queue.put("SINGLE_BLINK")
+                        try:
+                            self. blink_queue.put("SINGLE_BLINK", block=False)  # Non-blocking put
+                        except queue.Full:
+                            # print("Queue is full. Dropping item.")
+                            pass
+
                         print("Single Blink Detected")
                         blink_detected = True
                         self.last_single_blink_time = current_time
@@ -116,7 +130,12 @@ class BlinkDetectionThread(threading.Thread):
 
             # If no blink was detected, send an empty string
             if not blink_detected:
-                self.blink_queue.put("")
+                # self.blink_queue.put("")
+                try:
+                    self. blink_queue.put("", block=False)  # Non-blocking put
+                except queue.Full:
+                    # print("Queue is full. Dropping item.")
+                    pass
 
             # Display the frame with landmarks and ratio
             # cv2.imshow("Blink Detection with Landmarks", frame)

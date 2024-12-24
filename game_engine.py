@@ -21,18 +21,18 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     max_attempts = 3
 
     levels = [
-        {"name": "Form", "module": "levels.form"},
-        {"name": "Level 1", "module": "levels.EchoMatch"},
-        {"name": "Level 2", "module": "levels.ChainReaction"},
-        {"name": "Level 3", "module": "levels.StoryWeaver"},
+        # {"name": "Form", "module": "levels.form"},
+        # {"name": "Level 1", "module": "levels.EchoMatch"},
+        # {"name": "Level 6", "module": "levels.PicChime"},
+        # {"name": "Level 3", "module": "levels.StoryWeaver"},
+        # {"name": "Level 8", "module": "levels.BlockMorph"},
+        # {"name": "Level 2", "module": "levels.ChainReaction"},
+        # {"name": "Level 11", "module": "levels.NumberSort"},
+        # {"name": "Level 10", "module": "levels.QuickTap"},
+        # {"name": "Level 9", "module": "levels.LogicLink"},
         # {"name": "Level 4", "module": "levels.level4"},
-        {"name": "Level 5", "module": "levels.QuickAudio"},
-        {"name": "Level 6", "module": "levels.PicChime"},
+        # {"name": "Level 5", "module": "levels.QuickAudio"},
         # {"name": "Level 7", "module": "levels.level7"},
-        {"name": "Level 8", "module": "levels.BlockMorph"},
-        {"name": "Level 9", "module": "levels.LogicLink"},
-        {"name": "Level 10", "module": "levels.QuickTap"},
-        {"name": "Level 11", "module": "levels.NumberSort"}
         {"name": "Level 12", "module": "levels.SpotTheDifference"},
     ]
 

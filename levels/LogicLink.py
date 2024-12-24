@@ -2,7 +2,7 @@ import pygame
 import random
 import sys
 
-def run_game(surface, update_score_callback, level_width, level_height, win_width, win_height, max_attempts_arg):
+def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the Image-Based Analogy Game inside the provided surface.
 
@@ -225,7 +225,6 @@ def run_game(surface, update_score_callback, level_width, level_height, win_widt
                         is_correct = check_answer(event.pos, questions[current_question_index])
                         if is_correct:
                             score += 1
-                            update_score_callback(1)  # Update score in the main menu
                         current_question_index += 1
                         if current_question_index < len(questions):
                             game_state = "question"

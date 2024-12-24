@@ -6,7 +6,7 @@ from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same 
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     # Blink detection setup
-    blink_queue = queue.Queue()
+    blink_queue = queue.Queue(maxsize=10)
     blink_thread = BlinkDetectionThread(blink_queue)
     blink_thread.start()  # Start the blink detection thread
 

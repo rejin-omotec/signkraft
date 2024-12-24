@@ -2,6 +2,9 @@ import pygame
 import random
 import sys
 from pygame.locals import *
+import queue
+from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same BlinkDetectionThread used in Level 2
+
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
@@ -14,6 +17,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     :param win_width: Width of the entire window.
     :param win_height: Height of the entire window.
     """
+    # Blink detection setup
+    blink_queue = queue.Queue(maxsize=10)
+    blink_thread = BlinkDetectionThread(blink_queue)
+    blink_thread.start()  # Start the blink detection thread
+
+
     # Set up fonts
     FONT = pygame.font.SysFont(None, 36)
 
@@ -133,6 +142,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         nonlocal selected_images
         selected_images = []
         positions = []
+        current_index = 0  # Track the currently highlighted image for keyboard navigation
 
         # Shuffle all images for random order in selection screen
         random.shuffle(all_images)
@@ -154,15 +164,40 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 y = level_height - img_height - margin
                 rect = surface.blit(img, (x, y))
                 positions.append(rect)
-                if i in selected_images:
-                    pygame.draw.rect(surface, (0, 255, 0), rect, 3)
+
+                # Highlighting logic
+                if i == current_index:
+                    pygame.draw.rect(surface, (0, 255, 255), rect.inflate(5, 5), 5)  # Cyan border, thicker and larger
+                elif i in selected_images:
+                    pygame.draw.rect(surface, (255, 255, 0), rect.inflate(3, 3), 3)  # Yellow border for selected images
 
             pygame.display.update()
+
+            # Handle blink input
+            try:
+                blink_message = blink_queue.get_nowait()
+                if blink_message == "SINGLE_BLINK":
+                    print("Single Blink Detected - Pygame")
+                    current_index = (current_index + 1) % len(scaled_images)  # Navigate to the next image
+                elif blink_message == "DOUBLE_BLINK":
+                    print("Double Blink Detected - Pygame")
+                    if current_index in selected_images:
+                        selected_images.remove(current_index)
+                    else:
+                        selected_images.append(current_index)
+
+                    # Automatically end selection phase once enough images are selected
+                    if len(selected_images) == sequence_length:
+                        running = False
+            except queue.Empty:
+                pass
 
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
+
+                # Mouse-based selection
                 elif event.type == MOUSEBUTTONDOWN:
                     x_click, y_click = event.pos
                     # Adjust for subsurface coordinates
@@ -178,9 +213,29 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             else:
                                 selected_images.append(idx)
 
-                    # Automatically end selection phase once enough images are selected
-                    if len(selected_images) == sequence_length:
-                        running = False
+                            # Automatically end selection phase once enough images are selected
+                            if len(selected_images) == sequence_length:
+                                running = False
+
+                # Keyboard-based navigation and selection
+                elif event.type == KEYDOWN:
+                    if event.key == K_LEFT:
+                        current_index = (current_index - 1) % len(scaled_images)
+                    elif event.key == K_RIGHT:
+                        current_index = (current_index + 1) % len(scaled_images)
+                    elif event.key == K_RETURN:
+                        if current_index in selected_images:
+                            selected_images.remove(current_index)
+                        else:
+                            selected_images.append(current_index)
+
+                        # Automatically end selection phase once enough images are selected
+                        if len(selected_images) == sequence_length:
+                            running = False
+
+        # Return the indices of selected images for later use
+        return selected_images
+
 
     def calculate_score(sequence, selected_indices):
         """Calculate the player's score based on correct selections."""

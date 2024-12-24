@@ -3,12 +3,20 @@ import sys
 import random
 import time
 import json
+import queue
+from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same BlinkDetectionThread used in Level 2
 
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
     Runs the entire game with language selection, story display, audio playback, and questions.
     """
+
+    # Blink detection setup
+    blink_queue = queue.Queue(maxsize=10)
+    blink_thread = BlinkDetectionThread(blink_queue)
+    blink_thread.start()  # Start the blink detection thread
+
 
     # Load the JSON file
     def load_stories(file_path):
@@ -260,6 +268,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             selected_option = -1  # Reset selected option for each question
             start_time = time.time()  # Start timer for the question
 
+            # Initialize hovered_option before the loop
+            hovered_option = None  # Tracks the currently highlighted option (None if no option is hovered)
+
             while True:
                 # Clear the surface once
                 surface.fill(WHITE)
@@ -271,7 +282,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 option_rects = []
                 for i, option in enumerate(question["options"]):
                     option_text = f"{i + 1}. {option}"
-                    color = BLACK if selected_option != i else GREEN
+                    color = BLACK if hovered_option != i else GREEN  # GREEN for highlighted option
                     rects = render_text(surface, option_text, font, color, 70, 150 + i * 40, level_width - 50)
                     option_rects.append(rects[-1])  # Get the rectangle of the last line of the option text
 
@@ -286,10 +297,14 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 )
 
                 # Check mouse hover over options
-                hovered_option = None
+                mouse_hovered_option = None
                 for i, rect in enumerate(option_rects):
                     if rect.collidepoint(adjusted_mouse_pos):
-                        hovered_option = i
+                        mouse_hovered_option = i
+
+                # Update hovered_option from mouse
+                if mouse_hovered_option is not None:
+                    hovered_option = mouse_hovered_option
 
                 # Draw highlight for hovered option
                 if hovered_option is not None:
@@ -307,67 +322,106 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
                 pygame.display.update()
 
+                # Handle events
+                try:
+                    blink_message = blink_queue.get_nowait()
+                    if blink_message == "SINGLE_BLINK":
+                        print("Single Blink Detected")
+                        if hovered_option is None:
+                            hovered_option = 0  # Default to the first option if none is highlighted
+                        else:
+                            hovered_option = (hovered_option + 1) % len(question["options"])  # Move to next option
+                    elif blink_message == "DOUBLE_BLINK" and hovered_option is not None:
+                        print("Double Blink Detected")
+                        selected_option = hovered_option  # Select the current option
+                        time_taken = time.time() - start_time
+                        is_correct = question["options"][selected_option] == question["answer"]
+                        if is_correct:
+                            score += 1
+                            results.append({
+                                "Game": "Story Game",
+                                "Weight": weights[story_attempts],
+                                "Correct": 1,
+                                "Incorrect": 0,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+                        else:
+                            results.append({
+                                "Game": "Story Game",
+                                "Weight": weights[story_attempts],
+                                "Correct": 0,
+                                "Incorrect": 1,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+                        current_question += 1
+                        break
+                except queue.Empty:
+                    pass
+
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
                         sys.exit()
                     elif event.type == pygame.KEYDOWN:
-                        if event.key in [pygame.K_1, pygame.K_KP1]:
-                            selected_option = 0
-                        elif event.key in [pygame.K_2, pygame.K_KP2]:
-                            selected_option = 1
-                        elif event.key in [pygame.K_3, pygame.K_KP3]:
-                            selected_option = 2
-                        elif event.key in [pygame.K_4, pygame.K_KP4]:
-                            selected_option = 3
-                        elif event.key == pygame.K_RETURN and selected_option != -1:
-                            time_taken = time.time() - start_time
-                            is_correct = question["options"][selected_option] == question["answer"]
-                            if is_correct:
-                                score += 1
-                                results.append({
-                                        "Game": "Story Game",
-                                        "Weight": weights[story_attempts],
-                                        "Correct": 1,
-                                        "Incorrect": 0,
-                                        "Time Taken": time_taken,
-                                        "Max Time": 60
-                                    })
+                        if event.key in [pygame.K_DOWN, pygame.K_UP]:
+                            if hovered_option is None:
+                                hovered_option = 0  # Default to the first option if none is highlighted
                             else:
-                                results.append({
-                                        "Game": "Story Game",
-                                        "Weight": weights[story_attempts],
-                                        "Correct": 0,
-                                        "Incorrect": 1,
-                                        "Time Taken": time_taken,
-                                        "Max Time": 60
-                                    })
-                            current_question += 1
-                            break
-                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
-                        if hovered_option is not None:
+                                if event.key == pygame.K_DOWN:
+                                    hovered_option = (hovered_option + 1) % len(question["options"])
+                                elif event.key == pygame.K_UP:
+                                    hovered_option = (hovered_option - 1) % len(question["options"])
+                        elif event.key == pygame.K_RETURN and hovered_option is not None:
                             selected_option = hovered_option
                             time_taken = time.time() - start_time
                             is_correct = question["options"][selected_option] == question["answer"]
                             if is_correct:
                                 score += 1
                                 results.append({
-                                        "Game": "Story Game",
-                                        "Weight": weights[story_attempts],
-                                        "Correct": 1,
-                                        "Incorrect": 0,
-                                        "Time Taken": time_taken,
-                                        "Max Time": 60
-                                    })
+                                    "Game": "Story Game",
+                                    "Weight": weights[story_attempts],
+                                    "Correct": 1,
+                                    "Incorrect": 0,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                                })
                             else:
                                 results.append({
-                                        "Game": "Story Game",
-                                        "Weight": weights[story_attempts],
-                                        "Correct": 0,
-                                        "Incorrect": 1,
-                                        "Time Taken": time_taken,
-                                        "Max Time": 60
-                                    })
+                                    "Game": "Story Game",
+                                    "Weight": weights[story_attempts],
+                                    "Correct": 0,
+                                    "Incorrect": 1,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                                })
+                            current_question += 1
+                            break
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
+                        if mouse_hovered_option is not None:
+                            selected_option = mouse_hovered_option
+                            time_taken = time.time() - start_time
+                            is_correct = question["options"][selected_option] == question["answer"]
+                            if is_correct:
+                                score += 1
+                                results.append({
+                                    "Game": "Story Game",
+                                    "Weight": weights[story_attempts],
+                                    "Correct": 1,
+                                    "Incorrect": 0,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                                })
+                            else:
+                                results.append({
+                                    "Game": "Story Game",
+                                    "Weight": weights[story_attempts],
+                                    "Correct": 0,
+                                    "Incorrect": 1,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                                })
                             current_question += 1
                             break
                 else:
