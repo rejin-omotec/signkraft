@@ -197,26 +197,28 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     # Game variables
     running = True
     game_state = "question"
-    score = 0
-    weights = [1.0, 1.0, 1.5, 1.5, 2.0, 2.0]
     selected_option = -1
-    results = []
-    current_question_index = 0
+    max_attempts = max_attempts_arg
+    attempts = 0
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
 
     clock = pygame.time.Clock()
 
     # Display instructions
     instruction_screen(surface, win_width, win_height)
 
+    start_time = time.time()
+
     while running:
         surface.fill(WHITE)
 
         if game_state == "question":
-            render_question(surface, questions[current_question_index])
+            render_question(surface, questions[attempts])
             game_state = "question_shown"
             selected_option = -1
         if game_state == "question_shown":
-            render_options(surface, questions[current_question_index])
+            render_options(surface, questions[attempts])
             pygame.display.flip()
             start_time = time.time()
 
@@ -235,81 +237,46 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                     elif event.key in [pygame.K_4, pygame.K_KP4]:
                         selected_option = 3
                     if selected_option != -1:
-                        time_taken = time.time() - start_time
-                        is_correct = selected_option == questions[current_question_index]["correct_index"]
+                        is_correct = selected_option == questions[attempts]["correct_index"]
                         if is_correct:
-                            score += 1
-                            results.append({
-                                    "Game": "SpotTheDifference",
-                                    "Weight": weights[current_question_index],
-                                    "Correct": 1,
-                                    "Incorrect": 0,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                            })
-                        else:
-                            results.append({
-                                    "Game": "SpotTheDifference",
-                                    "Weight": weights[current_question_index],
-                                    "Correct": 0,
-                                    "Incorrect": 1,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                            })
-                        current_question_index += 1
-                        if current_question_index < len(questions):
+                            results[attempts] = weights[attempts]
+                        
+                        attempts += 1
+                        if attempts < max_attempts:
                             game_state = "question"
                         else:
-                            game_state = "end"
+                            running = False
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:  # Left click
+                        is_correct = check_answer(event.pos, questions[attempts])
 
-                        time_taken = time.time() - start_time
+                        if is_correct:
+                            results[attempts] = weights[attempts]
                         
+                        attempts += 1
+                        if attempts < max_attempts:
+                            game_state = "question"
+                        else:
+                            running = False
 
-                        is_correct = check_answer(event.pos, questions[current_question_index])
+        
 
-                        results.append({
-                            "Game": 'QuickTap',
-                            "Weight": weights[current_question_index],
-                            "Correct": 1 if is_correct else 0,
-                            "Incorrect": 0 if is_correct else 1,
-                            "Time Taken": time_taken,
-                            "Max Time": 60
-                        })
+        quit_surface = FONT_SMALL.render("Press any key to quit.", True, BLACK)
+        quit_rect = quit_surface.get_rect(center=(level_width // 2, level_height // 2 + 50))
+        surface.blit(quit_surface, quit_rect)
 
-                    if is_correct:
-                        score += 1
-                                # update_score_callback(1)  # Update score in the main menu
-                    current_question_index += 1
-                    if current_question_index < len(questions):
-                        game_state = "question"
-                    else:
-                        game_state = "end"
+        pygame.display.flip()
 
-        elif game_state == "end":
-            # Display final score
-            result_text = f"You scored {score} out of {len(questions)}!"
-            result_surface = FONT.render(result_text, True, BLACK)
-            result_rect = result_surface.get_rect(center=(level_width // 2, level_height // 2))
-            surface.blit(result_surface, result_rect)
-
-            quit_surface = FONT_SMALL.render("Press any key to quit.", True, BLACK)
-            quit_rect = quit_surface.get_rect(center=(level_width // 2, level_height // 2 + 50))
-            surface.blit(quit_surface, quit_rect)
-
-            pygame.display.flip()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.KEYDOWN:
-                    running = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                running = False
 
         pygame.display.flip()
         clock.tick(30)
 
-    return results, score
+    end_time = time.time()-start_time
 
-
+    return results, end_time

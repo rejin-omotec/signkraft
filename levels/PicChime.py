@@ -3,6 +3,7 @@ import random
 import sys
 from pygame.locals import *
 import queue
+import time
 from mods.blink_detect import BlinkDetectionThread  # Assuming this is the same BlinkDetectionThread used in Level 2
 from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
 
@@ -265,11 +266,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
 
     def calculate_score(sequence, selected_indices):
-        """Calculate the player's score based on correct selections."""
-        correct_indices = [image_list.index(img) for img in sequence]
-        selected_imgs = [all_images[idx] for idx in selected_indices]
-        correct_selections = set(sequence) & set(selected_imgs)
-        return len(correct_selections)
+        """Calculate the player's score based on exact sequence matching."""
+        correct_sequence = [image_list.index(img) for img in sequence]
+        selected_sequence = [all_images[idx] for idx in selected_indices]
+
+        # Check if the selected sequence matches the displayed sequence exactly
+        return 1 if selected_sequence == correct_sequence else 0
 
 
     # Game variables
@@ -278,17 +280,17 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     display_time = 2000        # Time to display each image (in milliseconds)
     sequence = []
     selected_images = []
-    score = 0
-    total_score = 0
-    results = []
     max_attempts = max_attempts_arg
     attempts = 0
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
 
     clock = pygame.time.Clock()
 
     # display the instruction screen
     instruction_screen(surface, win_width, win_height)
 
+    start_time = time.time()
 
     while running and attempts < max_attempts:
         # Generate a random sequence from the image list
@@ -301,23 +303,17 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
         # Calculate and display the score
         score = calculate_score(sequence, selected_images)
-
-        results.append({
-            "Game": "Image Recall",
-            "Weight": 1.0,
-            "Correct Count": score,
-            "Incorrect Count": sequence_length - score,
-            "Elapsed Time": pygame.time.get_ticks() // 1000,
-        })
+        if score == 1:
+           results[attempts] = weights[attempts]
 
         show_message(f'You identified {score}/{sequence_length} images correctly!')
 
         attempts += 1
 
+    end_time = time.time()-start_time
+
     # Display final message before quitting the level
     show_message(f'Final Score: {score}')
     pygame.time.wait(2000)
 
-    return results, score
-
-# This function `run_game()` can now be used similarly to other levels, passing in a subsurface for it to be rendered within.
+    return results, end_time

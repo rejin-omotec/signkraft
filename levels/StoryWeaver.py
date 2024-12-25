@@ -218,14 +218,15 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     random.shuffle(selected_stories)  # Shuffle the filtered stories in-place
 
     # Initialize results list
-    results = []
-    weights = [1.0, 1.5, 2.0]  # Example weights for increasing difficulty or attempts
+    results = [0, 0, 0]
+    weights = [2, 3, 5]  # Example weights for increasing difficulty or attempts
     HIGHLIGHT_COLOR = (200, 200, 200)
     GREEN = (0, 128, 0)
 
     # Track story attempts
     story_attempts = 0  # Tracks the number of stories completed
 
+    start_time = time.time()
 
     # Iterate over the stories (max 3 stories)
     for story in selected_stories:
@@ -329,42 +330,42 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 pygame.display.update()
 
                 # Handle events - Blink detection
-                # try:
-                #     blink_message = blink_queue.get_nowait()
-                #     if blink_message == "SINGLE_BLINK":
-                #         print("Single Blink Detected")
-                #         if hovered_option is None:
-                #             hovered_option = 0  # Default to the first option if none is highlighted
-                #         else:
-                #             hovered_option = (hovered_option + 1) % len(question["options"])  # Move to next option
-                #     elif blink_message == "DOUBLE_BLINK" and hovered_option is not None:
-                #         print("Double Blink Detected")
-                #         selected_option = hovered_option  # Select the current option
-                #         time_taken = time.time() - start_time
-                #         is_correct = question["options"][selected_option] == question["answer"]
-                #         if is_correct:
-                #             score += 1
-                #             results.append({
-                #                 "Game": "Story Game",
-                #                 "Weight": weights[story_attempts],
-                #                 "Correct": 1,
-                #                 "Incorrect": 0,
-                #                 "Time Taken": time_taken,
-                #                 "Max Time": 60
-                #             })
-                #         else:
-                #             results.append({
-                #                 "Game": "Story Game",
-                #                 "Weight": weights[story_attempts],
-                #                 "Correct": 0,
-                #                 "Incorrect": 1,
-                #                 "Time Taken": time_taken,
-                #                 "Max Time": 60
-                #             })
-                #         current_question += 1
-                #         break
-                # except queue.Empty:
-                #     pass
+                try:
+                    blink_message = blink_queue.get_nowait()
+                    if blink_message == "SINGLE_BLINK":
+                        print("Single Blink Detected")
+                        if hovered_option is None:
+                            hovered_option = 0  # Default to the first option if none is highlighted
+                        else:
+                            hovered_option = (hovered_option + 1) % len(question["options"])  # Move to next option
+                    elif blink_message == "DOUBLE_BLINK" and hovered_option is not None:
+                        print("Double Blink Detected")
+                        selected_option = hovered_option  # Select the current option
+                        time_taken = time.time() - start_time
+                        is_correct = question["options"][selected_option] == question["answer"]
+                        if is_correct:
+                            score += 1
+                            results.append({
+                                "Game": "Story Game",
+                                "Weight": weights[story_attempts],
+                                "Correct": 1,
+                                "Incorrect": 0,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+                        else:
+                            results.append({
+                                "Game": "Story Game",
+                                "Weight": weights[story_attempts],
+                                "Correct": 0,
+                                "Incorrect": 1,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+                        current_question += 1
+                        break
+                except queue.Empty:
+                    pass
 
 
                 # Handle events - Speech detection
@@ -483,6 +484,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         # Increment story attempts after completing questions
         story_attempts += 1
 
+
         # Display final score for the story
         surface.fill(WHITE)
         final_score = f"Your score for this story: {score}/{len(questions)}"
@@ -490,4 +492,6 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         pygame.display.update()
         pygame.time.wait(2000)
 
-    return results, score
+    end_time = time.time()-start_time
+
+    return [0,3,5], end_time

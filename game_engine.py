@@ -23,17 +23,15 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     levels = [
         # {"name": "Form", "module": "levels.form"},
         {"name": "Level 1", "module": "levels.EchoMatch"},
-        # {"name": "Level 6", "module": "levels.PicChime"},
-        # {"name": "Level 3", "module": "levels.StoryWeaver"},
-        # {"name": "Level 8", "module": "levels.BlockMorph"},
-        # {"name": "Level 2", "module": "levels.ChainReaction"},
-        # {"name": "Level 11", "module": "levels.NumberSort"},
-        # {"name": "Level 10", "module": "levels.QuickTap"},
-        # {"name": "Level 9", "module": "levels.LogicLink"},
-        # {"name": "Level 4", "module": "levels.level4"},
-        # {"name": "Level 5", "module": "levels.QuickAudio"},
-        # {"name": "Level 7", "module": "levels.level7"},
-        # {"name": "Level 12", "module": "levels.SpotTheDifference"},
+        {"name": "Level 6", "module": "levels.PicChime"},
+        {"name": "Level 3", "module": "levels.StoryWeaver"},
+        {"name": "Level 9", "module": "levels.LogicLink"},
+        {"name": "Level 5", "module": "levels.QuickAudio"},
+        {"name": "Level 8", "module": "levels.BlockMorph"},
+        {"name": "Level 10", "module": "levels.QuickTap"},
+        {"name": "Level 2", "module": "levels.ChainReaction"},
+        {"name": "Level 11", "module": "levels.NumberSort"},
+        {"name": "Level 12", "module": "levels.SpotTheDifference"},
         # {"name": "Level 13", "module": "levels.test"},
     ]
 
@@ -57,22 +55,22 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
         print(f"Running {level['name']}...")
 
         # Run the level and get the results
-        result_list, points = level_module.run_game(screen, WIDTH, GAME_HEIGHT, win_width, win_height, max_attempts)
+        result_list, time = level_module.run_game(screen, WIDTH, GAME_HEIGHT, win_width, win_height, max_attempts)
 
-        current_score += points
-        print(f"Current Score: {current_score}")
+        # current_score += points
+        # print(f"Current Score: {current_score}")
 
 
-        # Append each result to the JSON file with additional metadata
-        for attempt in result_list:
-            attempt_data = {
-                "Player Name": player_name,
-                "Player Age": player_age,
-                "Level Name": level["name"],
-                **attempt  # Unpack the JSON returned by the game level
-            }
-            data.append(attempt_data)
-            print(f"Logged to JSON: {attempt_data}")
+        # # Append each result to the JSON file with additional metadata
+        # for attempt in result_list:
+        #     attempt_data = {
+        #         "Player Name": player_name,
+        #         "Player Age": player_age,
+        #         "Level Name": level["name"],
+        #         **attempt  # Unpack the JSON returned by the game level
+        #     }
+        #     data.append(attempt_data)
+        #     print(f"Logged to JSON: {attempt_data}")
 
     # Save the updated data back to the JSON file
     with open(json_file_path, mode="w") as json_file:

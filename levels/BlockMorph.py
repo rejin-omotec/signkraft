@@ -139,9 +139,10 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     # Limit the number of attempts
     max_attempts = max_attempts_arg
     attempts = 0
-    score = 0
-    results = []  # JSON-compatible results
-    weights = [1.0, 1.5, 2.0]  # Scoring weights
+    results = [0, 0, 0]  # JSON-compatible results
+    weights = [2, 3, 5]  # Scoring weights
+    
+    start_time = time.time()
 
 
     # display instructions
@@ -180,7 +181,6 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     while running and attempts < max_attempts:
         clock.tick(60)  # Limit to 60 frames per second
-        start_time = time.time()
 
         # Event handling
         for event in pygame.event.get():
@@ -209,32 +209,15 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                         surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                         pygame.display.flip()
                         pygame.time.wait(2000)  # Pause for 2 seconds
-                        score += 1
-                        elapsed_time = time.time() - start_time
-                        results.append({
-                            "Game": "Shape Orientation",
-                            "Weight": weights[attempts],
-                            "Success": 1,
-                            "Failure": 0,
-                            "Time Taken": elapsed_time,
-                            "Max Time": 60
-                        })
+                        results[attempts] = weights[attempts]
+                        
                     else:
                         # Player got it wrong
                         message = font.render("Try Again!", True, (255, 0, 0))
                         surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                         pygame.display.flip()
                         pygame.time.wait(1000)  # Pause for 1 second
-                        elapsed_time = time.time() - start_time
-                        results.append({
-                            "Game": "Shape Orientation",
-                            "Weight": weights[attempts],
-                            "Success": 0,
-                            "Failure": 1,
-                            "Time Taken": elapsed_time,
-                            "Max Time": 60
-                        })
-
+                        
                     # Reset for next round
                     reference_angle = random.randint(0, 359)
                     user_angle = 0
@@ -255,31 +238,14 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                 pygame.display.flip()
                 pygame.time.wait(2000)  # Pause for 2 seconds
-                score += 1
-                elapsed_time = time.time() - start_time
-                results.append({
-                    "Game": "Shape Orientation",
-                    "Weight": weights[attempts],
-                    "Success": 1,
-                    "Failure": 0,
-                    "Time Taken": elapsed_time,
-                    "Max Time": 60
-                })
+                results[attempts] = weights[attempts]
+
             else:
                 # Player got it wrong
                 message = font.render("Try Again!", True, (255, 0, 0))
                 surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                 pygame.display.flip()
                 pygame.time.wait(1000)  # Pause for 1 second
-                elapsed_time = time.time() - start_time
-                results.append({
-                    "Game": "Shape Orientation",
-                    "Weight": weights[attempts],
-                    "Success": 0,
-                    "Failure": 1,
-                    "Time Taken": elapsed_time,
-                    "Max Time": 60
-                })
 
             # Reset for next round
             reference_angle = random.randint(0, 359)
@@ -303,31 +269,14 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                         surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                         pygame.display.flip()
                         pygame.time.wait(2000)  # Pause for 2 seconds
-                        score += 1
-                        elapsed_time = time.time() - start_time
-                        results.append({
-                            "Game": "Shape Orientation",
-                            "Weight": weights[attempts],
-                            "Success": 1,
-                            "Failure": 0,
-                            "Time Taken": elapsed_time,
-                            "Max Time": 60
-                        })
+                        results[attempts] = weights[attempts]
+                        
                     else:
                         # Player got it wrong
                         message = font.render("Try Again!", True, (255, 0, 0))
                         surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
                         pygame.display.flip()
                         pygame.time.wait(1000)  # Pause for 1 second
-                        elapsed_time = time.time() - start_time
-                        results.append({
-                            "Game": "Shape Orientation",
-                            "Weight": weights[attempts],
-                            "Success": 0,
-                            "Failure": 1,
-                            "Time Taken": elapsed_time,
-                            "Max Time": 60
-                        })
         except queue.Empty:
             pass
 
@@ -367,12 +316,13 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Display final score before quitting the level
     surface.fill(WHITE)
-    final_score_text = f'Final Score: {score}/{max_attempts}'
-    render_text_1(surface, final_score_text, font, BLACK, level_width // 2, level_height // 2)
     pygame.display.flip()
     pygame.time.wait(2000)
 
-    return results, score
+    end_time = time.time()-start_time
+
+
+    return results, end_time
 
 
 def render_text_1(surface, text, font, color, x, y):

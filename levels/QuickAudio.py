@@ -212,9 +212,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     attempts = 0
     running = True
     level = 3  # Start with 3 notes
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
 
     # Display instructions
     instruction_screen(surface, win_width, win_height)
+    start_time = time.time()
 
     while running and attempts < max_attempts:
         surface.fill(BLACK)
@@ -240,11 +243,14 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 break
         else:
             level += 1  # Increase difficulty
+            results[attempts] = weights[attempts]
             pygame.time.wait(500)
         
         # Increment attempts after processing the response
         attempts += 1
 
+
+    end_time = time.time()-start_time
 
     # Final Stats
     surface.fill(BLACK)
@@ -253,6 +259,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     render_centered_text(surface, final_text, font, WHITE, y_offset=0)
     pygame.display.flip()
     pygame.time.wait(2000)
+
+    return results, end_time
+
 
 # Example invocation for testing (set up Pygame context as needed)
 if __name__ == "__main__":

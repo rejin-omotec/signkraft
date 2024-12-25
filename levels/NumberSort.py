@@ -41,7 +41,11 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     # Game variables
     attempts = 0
     max_attempts = max_attempts_arg
-    total_results = []
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
+
+    start_time = time.time()
+
 
     while attempts < max_attempts:
         random.shuffle(notes)
@@ -115,18 +119,15 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
 
             if game_over:
-                duration = end_time - start_time
-                result = {
-                    "attempt": attempts + 1,
-                    "time": duration,
-                    "correct": is_correct_order()
-                }
-                total_results.append(result)
+                if is_correct_order():
+                    results[attempts] = weights[attempts]
                 running = False
 
             pygame.display.flip()
 
         attempts += 1
 
+    end_time = time.time()-start_time
+
     pygame.quit()
-    return total_results
+    return results, end_time

@@ -176,10 +176,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Game variables
     sequence_length = 3
-    score = 0
     attempts = 0
-    results = []
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
     max_attempts = max_attempts_arg
+
+    start_time = time.time()
 
     while attempts < max_attempts:
         # Generate a sequence of shapes
@@ -193,25 +195,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         player_choice = present_mcq(correct_sequence)
 
         if player_choice == correct_sequence:
-            score += 10
-            results.append({
-                "Game": "Level 1",
-                "Attempt Type": "Success",
-                "Points": 10,
-                "Correct": 1,
-                "Incorrect": 0
-            })
-        else:
-            results.append({
-                "Game": "Level 1",
-                "Attempt Type": "Failure",
-                "Points": 0,
-                "Correct": 0,
-                "Incorrect": 1
-            })
+            results[attempts] = weights[attempts]
 
         sequence_length += 1
         attempts += 1
 
+    end_time = time.time()-start_time
+
     blink_thread.stop()  # Stop the blink detection thread
-    return results, score
+    return results, end_time

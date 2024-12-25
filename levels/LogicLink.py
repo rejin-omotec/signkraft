@@ -200,123 +200,70 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Game variables
     running = True
-    game_state = "question"
     selected_option = -1
-    score = 0
-    weights = [1.0, 1.0, 1.5, 1.5, 2.0, 2.0]
-    results = []
-    current_question_index = 0
+    max_attempts = max_attempts_arg
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
+    attempts = 0
 
     clock = pygame.time.Clock()
 
     # Display instructions
     instruction_screen(surface, win_width, win_height)
 
+    start_time = time.time()
+
     while running:
         surface.fill(WHITE)
 
-        if game_state == "question":
-            render_question(surface, questions[current_question_index])
-            render_options(surface, questions[current_question_index])
-            start_time = time.time()
-            pygame.display.flip()
+        render_question(surface, questions[attempts])
+        render_options(surface, questions[attempts])
+        start_time = time.time()
+        pygame.display.flip()
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key in [pygame.K_1, pygame.K_KP1]:
-                        selected_option = 0
-                    elif event.key in [pygame.K_2, pygame.K_KP2]:
-                        selected_option = 1
-                    elif event.key in [pygame.K_3, pygame.K_KP3]:
-                        selected_option = 2
-                    elif event.key in [pygame.K_4, pygame.K_KP4]:
-                        selected_option = 3
-                    if selected_option != -1:
-                        time_taken = time.time() - start_time
-                        is_correct = selected_option == questions[current_question_index]["correct_index"]
-                        if is_correct:
-                            score += 1
-                            results.append({
-                                    "Game": "LogicLink",
-                                    "Weight": weights[current_question_index],
-                                    "Correct": 1,
-                                    "Incorrect": 0,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                            })
-                        else:
-                            results.append({
-                                    "Game": "LogicLink",
-                                    "Weight": weights[current_question_index],
-                                    "Correct": 0,
-                                    "Incorrect": 1,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                            })
-                        current_question_index += 1
-                        if current_question_index < len(questions):
-                            game_state = "question"
-                            selected_option = -1
-                        else:
-                            game_state = "end"
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:  # Left click
-                        is_correct = check_answer(event.pos, questions[current_question_index])
-                        if is_correct:
-                            score += 1
-                            time_taken = time.time() - start_time
-                            results.append({
-                                "Game": 'LogicLink',
-                                "Weight": weights[current_question_index],
-                                "Correct": 1,
-                                "Incorrect": 0,
-                                "Time Taken": time_taken,
-                                "Max Time": 60
-                            })
-                            # update_score_callback(1)  # Update score in the main menu
-
-                        else:
-                            results.append({
-                                "Game": 'LogicLink',
-                                "Weight": weights[current_question_index],
-                                "Correct": 0,
-                                "Incorrect": 1,
-                                "Time Taken": time_taken,
-                                "Max Time": 60
-                            })
-                        current_question_index += 1
+            # Keyboard control
+            elif event.type == pygame.KEYDOWN:
+                if event.key in [pygame.K_1, pygame.K_KP1]:
+                    selected_option = 0
+                elif event.key in [pygame.K_2, pygame.K_KP2]:
+                    selected_option = 1
+                elif event.key in [pygame.K_3, pygame.K_KP3]:
+                    selected_option = 2
+                elif event.key in [pygame.K_4, pygame.K_KP4]:
+                    selected_option = 3
+                if selected_option != -1:
+                    is_correct = selected_option == questions[attempts]["correct_index"]
+                    if is_correct:
+                        results[attempts] = weights[attempts]
+                    
+                    attempts += 1
+                    if attempts < len(questions):
+                        selected_option = -1
+                    else:
+                        running = False
+            
+            # mouse control
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left click
+                    is_correct = check_answer(event.pos, questions[attempts])
+                    if is_correct:
+                        results[attempts] = weights[attempts]
                         
-                        if current_question_index < len(questions):
-                            game_state = "question"
-                            selected_option = -1
-                        else:
-                            game_state = "end"
-
-        elif game_state == "end":
-            # Display final score
-            result_text = f"You scored {score} out of {len(questions)}!"
-            result_surface = FONT.render(result_text, True, BLACK)
-            result_rect = result_surface.get_rect(center=(level_width // 2, level_height // 2))
-            surface.blit(result_surface, result_rect)
-
-            quit_surface = FONT_SMALL.render("Press any key to quit.", True, BLACK)
-            quit_rect = quit_surface.get_rect(center=(level_width // 2, level_height // 2 + 50))
-            surface.blit(quit_surface, quit_rect)
-
-            pygame.display.flip()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.KEYDOWN:
-                    running = False
+                    attempts += 1
+                    if attempts < max_attempts:
+                        selected_option = -1
+                    else:
+                        running = False
+                    
 
         pygame.display.flip()
         clock.tick(30)
 
-    return results, score
+
+    end_time = time.time()-start_time
+    return results, end_time
