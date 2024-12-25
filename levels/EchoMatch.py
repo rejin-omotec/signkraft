@@ -194,7 +194,6 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
         if player_choice == correct_sequence:
             score += 10
-            sequence_length += 1
             results.append({
                 "Game": "Level 1",
                 "Attempt Type": "Success",
@@ -211,6 +210,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 "Incorrect": 1
             })
 
+        sequence_length += 1
         attempts += 1
 
     blink_thread.stop()  # Stop the blink detection thread

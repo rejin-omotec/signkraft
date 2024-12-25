@@ -1,18 +1,10 @@
 import pygame
 import random
 import time
-import queue
-from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     # Initialize Pygame
     pygame.init()
-
-    # speech detection setup
-    speech_queue = queue.Queue(maxsize=10)
-    speech_thread = SpeechRecognitionThread(audio_queue=speech_queue, language="english")
-    speech_thread.start()
-
 
     # Colors
     WHITE = (255, 255, 255)
@@ -97,22 +89,6 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                     elif event.key == pygame.K_RETURN and not game_over:
                         if notes[selected_index] not in arranged_notes:
                             arranged_notes.append(notes[selected_index])
-
-            # Speech Control
-            try:
-                if not speech_queue.empty():
-                    command = speech_queue.get(block=False)
-                    print(f"Recognized command: {command}")
-                    if command == "next":
-                        selected_index = (selected_index - 1) % len(notes)
-                    elif command == "previous":
-                        selected_index = (selected_index + 1) % len(notes)
-                    elif command == "select":
-                        if notes[selected_index] not in arranged_notes:
-                            arranged_notes.append(notes[selected_index])
-            except queue.Empty:
-                pass
-
 
             if game_over:
                 duration = end_time - start_time

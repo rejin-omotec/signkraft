@@ -41,8 +41,8 @@ class SpeechRecognitionThread(threading.Thread):
         self.stream.start_stream()
 
         # Predefined words for each language
-        self.english_words = {"up", "down", "next", "previous", "select", "stop", "start", "quit"}
-        self.hindi_words = {"ऊपर", "नीचे", "अगला", "पिछला",  "चयन ", "रोकें ", "शुरू", "छोड़ें" }
+        self.english_words = {"up", "down", "next", "previous", "left", "right", "select", "stop", "start", "quit"}
+        self.hindi_words = {"ऊपर", "नीचे", "अगला", "पिछला","बायां","दायां", "चयन ", "रोकें ", "शुरू", "छोड़ें" }
 
         # Tracking results
         self.last_result = ""

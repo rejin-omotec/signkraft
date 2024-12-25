@@ -2,7 +2,10 @@ import pygame
 import sys
 import random
 import math
+import queue
 import time
+from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
+
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
@@ -15,6 +18,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     :param win_width: Width of the entire window.
     :param win_height: Height of the entire window.
     """
+
+    # speech detection setup
+    speech_queue = queue.Queue(maxsize=10)
+    speech_thread = SpeechRecognitionThread(audio_queue=speech_queue, language="english")
+    speech_thread.start()
+
     # Clock to control frame rate
     clock = pygame.time.Clock()
 
@@ -276,6 +285,51 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             reference_angle = random.randint(0, 359)
             user_angle = 0
             attempts += 1
+
+        # Speech Control
+        try:
+            if not speech_queue.empty():
+                command = speech_queue.get(block=False)
+                print(f"Recognized command: {command}")
+                if command == "left":
+                    user_angle = (user_angle + 2) % 360
+                elif command == "right":
+                    user_angle = (user_angle - 2) % 360
+                elif command == "select":
+                    angle_difference = abs((user_angle - reference_angle) % 360)
+                    if angle_difference <= 5 or angle_difference >= 355:
+                        # Player got it correct
+                        message = font.render("Correct!", True, (0, 255, 0))
+                        surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
+                        pygame.display.flip()
+                        pygame.time.wait(2000)  # Pause for 2 seconds
+                        score += 1
+                        elapsed_time = time.time() - start_time
+                        results.append({
+                            "Game": "Shape Orientation",
+                            "Weight": weights[attempts],
+                            "Success": 1,
+                            "Failure": 0,
+                            "Time Taken": elapsed_time,
+                            "Max Time": 60
+                        })
+                    else:
+                        # Player got it wrong
+                        message = font.render("Try Again!", True, (255, 0, 0))
+                        surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
+                        pygame.display.flip()
+                        pygame.time.wait(1000)  # Pause for 1 second
+                        elapsed_time = time.time() - start_time
+                        results.append({
+                            "Game": "Shape Orientation",
+                            "Weight": weights[attempts],
+                            "Success": 0,
+                            "Failure": 1,
+                            "Time Taken": elapsed_time,
+                            "Max Time": 60
+                        })
+        except queue.Empty:
+            pass
 
         # Drawing
         surface.fill(WHITE)

@@ -3,12 +3,18 @@ import random
 import time
 import queue
 from mods.blink_detect import BlinkDetectionThread  # Assuming the class above is saved in BlinkDetectionThread.py
+from mods.audio_detect import SpeechRecognitionThread  # Replace with your actual module name
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     # Blink detection setup
     blink_queue = queue.Queue()
     blink_thread = BlinkDetectionThread(blink_queue)
     blink_thread.start()  # Start the blink detection thread
+
+    # speech detection setup
+    speech_queue = queue.Queue(maxsize=10)
+    speech_thread = SpeechRecognitionThread(audio_queue=speech_queue, language="english")
+    speech_thread.start()
 
     # Colors
     WHITE = (255, 255, 255)
@@ -112,6 +118,51 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                     attempts += 1  # Increment attempts
         except queue.Empty:
             pass
+
+
+        # Speech Control
+        try:
+            if not speech_queue.empty():
+                command = speech_queue.get(block=False)
+                print(f"Recognized command: {command}")
+                if command == "down":
+                    selected_option = (selected_option + 1) % len(options)
+                elif command == "up":
+                    selected_option = (selected_option - 1) % len(options)
+                elif command == "select":
+                    # Submit selected option using double blink
+                    if current_index < len(cause_effect_pairs):
+                        correct_cause, effect = cause_effect_pairs[current_index]
+                        time_taken = time.time() - start_time  # Calculate time taken
+
+                        if options[selected_option] == correct_cause:
+                            feedback = "Correct!"
+                            score += 1
+                            results.append({
+                                "Game": "Cause and Effect",
+                                "Weight": weights[attempts],
+                                "Correct": 1,
+                                "Incorrect": 0,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+                        else:
+                            feedback = f"Incorrect! The correct cause was: {correct_cause}"
+                            results.append({
+                                "Game": "Cause and Effect",
+                                "Weight": weights[attempts],
+                                "Correct": 0,
+                                "Incorrect": 1,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+
+                        show_feedback = True
+                        feedback_time = pygame.time.get_ticks()
+                        attempts += 1  # Increment attempts
+        except queue.Empty:
+            pass
+
 
         # Clear the surface
         surface.fill(WHITE)
