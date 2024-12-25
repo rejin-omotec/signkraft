@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import time
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
@@ -200,7 +201,10 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     # Game variables
     running = True
     game_state = "question"
+    selected_option = -1
     score = 0
+    weights = [1.0, 1.0, 1.5, 1.5, 2.0, 2.0]
+    results = []
     current_question_index = 0
 
     clock = pygame.time.Clock()
@@ -214,20 +218,82 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         if game_state == "question":
             render_question(surface, questions[current_question_index])
             render_options(surface, questions[current_question_index])
+            start_time = time.time()
             pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key in [pygame.K_1, pygame.K_KP1]:
+                        selected_option = 0
+                    elif event.key in [pygame.K_2, pygame.K_KP2]:
+                        selected_option = 1
+                    elif event.key in [pygame.K_3, pygame.K_KP3]:
+                        selected_option = 2
+                    elif event.key in [pygame.K_4, pygame.K_KP4]:
+                        selected_option = 3
+                    if selected_option != -1:
+                        time_taken = time.time() - start_time
+                        is_correct = selected_option == questions[current_question_index]["correct_index"]
+                        if is_correct:
+                            score += 1
+                            results.append({
+                                    "Game": "LogicLink",
+                                    "Weight": weights[current_question_index],
+                                    "Correct": 1,
+                                    "Incorrect": 0,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                            })
+                        else:
+                            results.append({
+                                    "Game": "LogicLink",
+                                    "Weight": weights[current_question_index],
+                                    "Correct": 0,
+                                    "Incorrect": 1,
+                                    "Time Taken": time_taken,
+                                    "Max Time": 60
+                            })
+                        current_question_index += 1
+                        if current_question_index < len(questions):
+                            game_state = "question"
+                            selected_option = -1
+                        else:
+                            game_state = "end"
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:  # Left click
                         is_correct = check_answer(event.pos, questions[current_question_index])
                         if is_correct:
                             score += 1
+                            time_taken = time.time() - start_time
+                            results.append({
+                                "Game": 'LogicLink',
+                                "Weight": weights[current_question_index],
+                                "Correct": 1,
+                                "Incorrect": 0,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
+                            # update_score_callback(1)  # Update score in the main menu
+
+                        else:
+                            results.append({
+                                "Game": 'LogicLink',
+                                "Weight": weights[current_question_index],
+                                "Correct": 0,
+                                "Incorrect": 1,
+                                "Time Taken": time_taken,
+                                "Max Time": 60
+                            })
                         current_question_index += 1
+                        
                         if current_question_index < len(questions):
                             game_state = "question"
+                            selected_option = -1
                         else:
                             game_state = "end"
 
@@ -253,4 +319,4 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         pygame.display.flip()
         clock.tick(30)
 
-    return score
+    return results, score
