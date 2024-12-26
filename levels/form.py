@@ -1,4 +1,7 @@
 import pygame
+import global_data
+
+
 
 def run_game(surface, level_width, level_height, win_width, win_height, max_attempts_arg):
     """
@@ -112,13 +115,17 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                         else:
                             field["value"] += event.unicode
 
-
         if inputs_collected:
             # Collect data from all fields
             collected_data = {key: field["value"] for key, field in input_fields.items()}
+
+            # Save data into the global dictionary
+            global_data.persistent_user_data.update(collected_data)
+            print(global_data.persistent_user_data)
+            
             running = False  # Exit the loop after collecting data
 
         pygame.display.update()
 
     # Return the collected data
-    return [{"Input Field": key, "Value": value} for key, value in collected_data.items()], 0
+    return [0,0,0], 0.0

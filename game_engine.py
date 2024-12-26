@@ -55,16 +55,18 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     max_attempts = 3
 
     levels = [
-        {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
-        {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
-        {"name": "StoryWeave", "module": "levels.StoryWeave", "max_time": 180},
-        {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
-        {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
-        {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
-        {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
-        {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
-        {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
-        {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120}
+        {"name": "form", "module": "levels.form", "max_time": 120},
+        # {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
+        # {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
+        # {"name": "StoryWeave", "module": "levels.StoryWeave", "max_time": 180},
+        # {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
+        # {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
+        # {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
+        # {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
+        # {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
+        # {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
+        # {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120},
+        {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
     ]
 
     win_width, win_height = screen.get_size()
@@ -116,7 +118,7 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
             "StoryWeave": 0.3424397655,
             "QuickAudio": 0.07058380898,
             "SpotTheDifference": 0.06132454972,
-            "Personal Quiz": 0.2036272902,
+            "PersonalQuiz": 0.2036272902,
         },
         "Attention": {
             "EchoMatch": 0.06781119646,
