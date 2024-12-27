@@ -30,12 +30,13 @@ TITLE_FONT = pygame.font.Font(None, 48)
 # Global state
 player_name = ""
 player_age = ""
-# game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
-game_state = "GAMEPLAY"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+game_state = "MAIN_MENU"  # MAIN_MENU, GAMEPLAY, END_SCREEN
+# game_state = "GAMEPLAY"  # MAIN_MENU, GAMEPLAY, END_SCREEN
 current_score = 0
 current_game_name = "Game Hub"
 
 json_file_path = ""
+final_domain_scores, overall_score = {}, 0
 
 
 def setup_player_folder_and_json(name):
@@ -58,7 +59,7 @@ def setup_player_folder_and_json(name):
 
     if not os.path.exists(json_file_path):
         with open(json_file_path, mode="w") as json_file:
-            json.dump([], json_file)
+            json.dump({"attempts": []}, json_file)  # Initialize with an "attempts" layer
             print(f"JSON file created: {json_file_path}")
     else:
         print(f"JSON file already exists: {json_file_path}")
@@ -66,27 +67,33 @@ def setup_player_folder_and_json(name):
     return json_file_path
 
 
-def save_game_result(game_name, weight, correct, incorrect, time_taken, total_time):
+def save_game_result(attempt_data, overall_score, attempt_number, radar_image_path):
     """
-    Appends a new game result to the player's JSON file.
+    Appends a new game result to the player's JSON file under a specific attempt.
     """
     global json_file_path
     with open(json_file_path, mode="r") as json_file:
-        data = json.load(json_file)
+        try:
+            data = json.load(json_file)
+        except json.JSONDecodeError:
+            data = {"attempts": []}  # Initialize if the file is empty
 
-    game_result = {
-        "Game Name": game_name,
-        "Weight": weight,
-        "Correct": correct,
-        "Incorrect": incorrect,
-        "Time Taken": time_taken,
-        "Total Time": total_time
+    # Prepare attempt entry
+    attempt_entry = {
+        "Attempt": attempt_number,
+        "Overall Score": overall_score,
+        "Radar Image": radar_image_path,
+        "Data": attempt_data  # Store the complete JSON data for this attempt
     }
-    data.append(game_result)
 
+    # Add to attempts list
+    data["attempts"].append(attempt_entry)
+
+    # Write back to file
     with open(json_file_path, mode="w") as json_file:
         json.dump(data, json_file, indent=4)
     print(f"Game result saved to JSON file: {json_file_path}")
+
 
 
 def generate_radar_plot(scores, output_path):
@@ -443,7 +450,7 @@ def main():
     """
     Main function to manage the game loop and states.
     """
-    global game_state, current_score, csv_file_path, current_game_name
+    global game_state, current_score, current_game_name, final_domain_scores, overall_score
 
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Game Hub")
@@ -466,36 +473,41 @@ def main():
             game_surface = screen.subsurface(game_area)
 
             # Pass control to the game engine (only the game area is passed)
-            current_score = game_engine.run(game_surface, player_name, player_age, current_score, json_file_path, WIDTH, GAME_HEIGHT)
+            final_domain_scores, overall_score = game_engine.run(game_surface, player_name, player_age, current_score, WIDTH, GAME_HEIGHT)
             game_state = "END_SCREEN"
-        # elif game_state == "END_SCREEN":
-        #     # Display the end screen
-        #     screen.fill(WHITE)
-        #     title_surface = TITLE_FONT.render("Game Over!", True, BLACK)
-        #     screen.blit(title_surface, (WIDTH // 2 - title_surface.get_width() // 2, 100))
-        #     score_surface = FONT.render(f"Final Score: {current_score}", True, BLACK)
-        #     screen.blit(score_surface, (WIDTH // 2 - score_surface.get_width() // 2, 200))
+       
 
-        #     # Add Restart or Exit options
-        #     restart_button = pygame.Rect(WIDTH // 2 - 50, 300, 100, 50)
-        #     pygame.draw.rect(screen, BLACK, restart_button)
-        #     restart_text = FONT.render("Restart", True, WHITE)
-        #     screen.blit(restart_text, (restart_button.x + 10, restart_button.y + 10))
-
-        #     for event in pygame.event.get():
-        #         if event.type == pygame.QUIT:
-        #             pygame.quit()
-        #             exit()
-        #         elif event.type == pygame.MOUSEBUTTONDOWN:
-        #             if restart_button.collidepoint(event.pos):
-        #                 game_state = "MAIN_MENU"
-
-        #     pygame.display.update()
         elif game_state == "END_SCREEN":
             if not cognitive_bool:
-                cognitive_scores, radar_image_path = calculate_cognitive_scores(json_file_path)
+                # Determine the output directory and attempt-specific radar image path
+                output_dir = os.path.dirname(json_file_path)
+                try:
+                    with open(json_file_path, "r") as json_file:
+                        data = json.load(json_file)
+                        attempt_number = len(data["attempts"]) + 1  # Calculate the current attempt number
+                except (json.JSONDecodeError, KeyError):
+                    attempt_number = 1  # Start fresh if file is empty or corrupted
+
+                radar_image_path = os.path.join(output_dir, f"attempt_{attempt_number}_radar.png")
+
+                # Generate and save radar plot for this attempt
+                generate_radar_plot(final_domain_scores, radar_image_path)
+
+                # Store the result
+                save_game_result(
+                    attempt_data=final_domain_scores,
+                    overall_score=overall_score,
+                    attempt_number=attempt_number,
+                    radar_image_path=radar_image_path
+                )
+
                 cognitive_bool = True
-            draw_end_screen(screen, cognitive_scores, radar_image_path)
+
+            # Draw the end screen with the current attempt's radar image
+            draw_end_screen(screen, final_domain_scores, radar_image_path)
+
+
+
 
 
 if __name__ == "__main__":

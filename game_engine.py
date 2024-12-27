@@ -39,6 +39,9 @@ def calculate_domain_scores(data, domain_weights, game_weights):
         domain: round(score * domain_weights[domain], 2) for domain, score in domain_scores.items()
     }
 
+    # Calculate overall score as the sum of all domain scores
+    overall_score = round(sum(final_domain_scores.values()), 2)
+
     # Debug: Print detailed contributions
     print("\nDomain Contributions:")
     for domain, contributions in domain_contributions.items():
@@ -46,27 +49,45 @@ def calculate_domain_scores(data, domain_weights, game_weights):
         for game_name, combined_score, game_weight, weighted_score in contributions:
             print(f"  {game_name}: Score={combined_score}, Weight={game_weight}, Weighted Contribution={weighted_score}")
 
-    return final_domain_scores
+    print("\nOverall Score:", overall_score)
 
-def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, GAME_HEIGHT):
+    return final_domain_scores, overall_score
+
+
+def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
     """
     Runs the game engine, managing levels and score.
     """
     max_attempts = 3
 
+    # levels = [
+    #     {"name": "form", "module": "levels.form", "max_time": 120},
+    #     {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
+    #     {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
+    #     {"name": "StoryWeave", "module": "levels.StoryWeaver", "max_time": 180},
+    #     {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
+    #     {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
+    #     {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
+    #     {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
+    #     {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
+    #     {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
+    #     {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120},
+    #     {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
+    # ]
+
     levels = [
-        {"name": "form", "module": "levels.form", "max_time": 120},
-        # {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
-        # {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
-        # {"name": "StoryWeave", "module": "levels.StoryWeave", "max_time": 180},
-        # {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
-        # {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
-        # {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
-        # {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
-        # {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
-        # {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
-        # {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120},
-        {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
+        # {"name": "form", "module": "levels.form", "max_time": 120},
+        {"name": "EchoMatch", "module": "test_levels.EchoMatch", "max_time": 120},
+        {"name": "PicChime", "module": "test_levels.PicChime", "max_time": 120},
+        {"name": "StoryWeave", "module": "test_levels.StoryWeaver", "max_time": 180},
+        {"name": "LogicLink", "module": "test_levels.LogicLink", "max_time": 60},
+        {"name": "QuickAudio", "module": "test_levels.QuickAudio", "max_time": 60},
+        {"name": "BlockMorph", "module": "test_levels.BlockMorph", "max_time": 60},
+        {"name": "QuickTap", "module": "test_levels.QuickTap", "max_time": 30},
+        {"name": "ChainReaction", "module": "test_levels.ChainReaction", "max_time": 60},
+        {"name": "NumberSort", "module": "test_levels.NumberSort", "max_time": 60},
+        {"name": "SpotTheDifference", "module": "test_levels.SpotTheDifference", "max_time": 120},
+        {"name": "PersonalQuiz", "module": "test_levels.PersonalQuiz", "max_time": 60},
     ]
 
     win_width, win_height = screen.get_size()
@@ -157,8 +178,8 @@ def run(screen, player_name, player_age, initial_score, json_file_path, WIDTH, G
     }
 
     # Calculate final domain scores
-    final_domain_scores = calculate_domain_scores(game_results, domain_weights, game_weights)
-    print("\nFinal Domain Scores:")
-    print(final_domain_scores)
+    final_domain_scores, overall_score = calculate_domain_scores(game_results, domain_weights, game_weights)
+    # print("\nFinal Domain Scores:")
+    # print(final_domain_scores)
 
-    return current_score, final_domain_scores
+    return final_domain_scores, overall_score
