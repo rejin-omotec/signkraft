@@ -60,35 +60,35 @@ def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
     """
     max_attempts = 3
 
-    # levels = [
-    #     {"name": "form", "module": "levels.form", "max_time": 120},
-    #     {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
-    #     {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
-    #     {"name": "StoryWeave", "module": "levels.StoryWeaver", "max_time": 180},
-    #     {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
-    #     {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
-    #     {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
-    #     {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
-    #     {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
-    #     {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
-    #     {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120},
-    #     {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
-    # ]
-
     levels = [
         # {"name": "form", "module": "levels.form", "max_time": 120},
-        {"name": "EchoMatch", "module": "test_levels.EchoMatch", "max_time": 120},
-        {"name": "PicChime", "module": "test_levels.PicChime", "max_time": 120},
-        {"name": "StoryWeave", "module": "test_levels.StoryWeaver", "max_time": 180},
-        {"name": "LogicLink", "module": "test_levels.LogicLink", "max_time": 60},
-        {"name": "QuickAudio", "module": "test_levels.QuickAudio", "max_time": 60},
-        {"name": "BlockMorph", "module": "test_levels.BlockMorph", "max_time": 60},
-        {"name": "QuickTap", "module": "test_levels.QuickTap", "max_time": 30},
-        {"name": "ChainReaction", "module": "test_levels.ChainReaction", "max_time": 60},
-        {"name": "NumberSort", "module": "test_levels.NumberSort", "max_time": 60},
-        {"name": "SpotTheDifference", "module": "test_levels.SpotTheDifference", "max_time": 120},
-        {"name": "PersonalQuiz", "module": "test_levels.PersonalQuiz", "max_time": 60},
+        # {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
+        # {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
+        # {"name": "StoryWeave", "module": "levels.StoryWeaver", "max_time": 180},
+        # {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
+        # {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
+        {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
+        # {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
+        # {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
+        # {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
+        # {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120},
+        # {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
     ]
+
+    # levels = [
+    #     # {"name": "form", "module": "levels.form", "max_time": 120},
+    #     {"name": "EchoMatch", "module": "test_levels.EchoMatch", "max_time": 120},
+    #     {"name": "PicChime", "module": "test_levels.PicChime", "max_time": 120},
+    #     {"name": "StoryWeave", "module": "test_levels.StoryWeaver", "max_time": 180},
+    #     {"name": "LogicLink", "module": "test_levels.LogicLink", "max_time": 60},
+    #     {"name": "QuickAudio", "module": "test_levels.QuickAudio", "max_time": 60},
+    #     {"name": "BlockMorph", "module": "test_levels.BlockMorph", "max_time": 60},
+    #     {"name": "QuickTap", "module": "test_levels.QuickTap", "max_time": 30},
+    #     {"name": "ChainReaction", "module": "test_levels.ChainReaction", "max_time": 60},
+    #     {"name": "NumberSort", "module": "test_levels.NumberSort", "max_time": 60},
+    #     {"name": "SpotTheDifference", "module": "test_levels.SpotTheDifference", "max_time": 120},
+    #     {"name": "PersonalQuiz", "module": "test_levels.PersonalQuiz", "max_time": 60},
+    # ]
 
     win_width, win_height = screen.get_size()
     current_score = initial_score

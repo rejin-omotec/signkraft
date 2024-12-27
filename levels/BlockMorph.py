@@ -197,13 +197,13 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
                 # Check for button clicks
                 if left_button_rect.collidepoint(adjusted_mouse_pos):
-                    user_angle = (user_angle + 2) % 360
+                    user_angle = (user_angle + 5) % 360
                 elif right_button_rect.collidepoint(adjusted_mouse_pos):
-                    user_angle = (user_angle - 2) % 360
+                    user_angle = (user_angle - 5) % 360
                 elif submit_button_rect.collidepoint(adjusted_mouse_pos):
                     # Check if the user's angle matches the reference angle within a tolerance
                     angle_difference = abs((user_angle - reference_angle) % 360)
-                    if angle_difference <= 5 or angle_difference >= 355:
+                    if angle_difference <= 7 or angle_difference >= 353:
                         # Player got it correct
                         message = font.render("Correct!", True, (0, 255, 0))
                         surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
@@ -226,13 +226,13 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         # Key states for rotating the user shape
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
-            user_angle = (user_angle + 2) % 360
+            user_angle = (user_angle + 5) % 360
         if keys[pygame.K_RIGHT]:
-            user_angle = (user_angle - 2) % 360
+            user_angle = (user_angle - 5) % 360
         if keys[pygame.K_SPACE]:
             # Check if the user's angle matches the reference angle within a tolerance
             angle_difference = abs((user_angle - reference_angle) % 360)
-            if angle_difference <= 5 or angle_difference >= 355:
+            if angle_difference <= 7 or angle_difference >= 353:
                 # Player got it correct
                 message = font.render("Correct!", True, (0, 255, 0))
                 surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
@@ -258,12 +258,12 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 command = speech_queue.get(block=False)
                 print(f"Recognized command: {command}")
                 if command == "left":
-                    user_angle = (user_angle + 2) % 360
+                    user_angle = (user_angle + 5) % 360
                 elif command == "right":
-                    user_angle = (user_angle - 2) % 360
+                    user_angle = (user_angle - 5) % 360
                 elif command == "select":
                     angle_difference = abs((user_angle - reference_angle) % 360)
-                    if angle_difference <= 5 or angle_difference >= 355:
+                    if angle_difference <= 7 or angle_difference >= 353:
                         # Player got it correct
                         message = font.render("Correct!", True, (0, 255, 0))
                         surface.blit(message, (level_width // 2 - message.get_width() // 2, level_height - 50))
