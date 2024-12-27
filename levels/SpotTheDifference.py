@@ -112,10 +112,10 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             surface.fill(WHITE)
             surface.blit(img, image_positions[i])
             pygame.display.update()
-            pygame.time.wait(100)
+            pygame.time.wait(2000)
             surface.fill(WHITE)
             pygame.display.update()
-            pygame.time.wait(100)
+            pygame.time.wait(3000)
 
     def render_options(surface, question, selected_option):
         """Display the current question's options with a border around the selected option."""

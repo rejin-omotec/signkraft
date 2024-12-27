@@ -61,18 +61,18 @@ def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
     max_attempts = 3
 
     levels = [
-        # {"name": "form", "module": "levels.form", "max_time": 120},
-        # {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
-        # {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
-        # {"name": "StoryWeave", "module": "levels.StoryWeaver", "max_time": 180},
-        # {"name": "LogicLink", "module": "levels.LogicLink", "max_time": 60},
-        # {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
-        # {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
-        # {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
-        # {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
-        # {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
-        {"name": "SpotTheDifference", "module": "levels.test", "max_time": 120},
-        # {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
+        {"name": "form", "module": "levels.form", "max_time": 120},
+        {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
+        {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
+        {"name": "StoryWeave", "module": "levels.StoryWeaver", "max_time": 180},
+        {"name": "LogicLink", "module": "levels.test", "max_time": 60},
+        {"name": "QuickAudio", "module": "levels.QuickAudio", "max_time": 60},
+        {"name": "BlockMorph", "module": "levels.BlockMorph", "max_time": 60},
+        {"name": "QuickTap", "module": "levels.QuickTap", "max_time": 30},
+        {"name": "ChainReaction", "module": "levels.ChainReaction", "max_time": 60},
+        {"name": "NumberSort", "module": "levels.NumberSort", "max_time": 60},
+        {"name": "SpotTheDifference", "module": "levels.SpotTheDifference", "max_time": 120},
+        {"name": "PersonalQuiz", "module": "levels.PersonalQuiz", "max_time": 60},
     ]
 
     # levels = [
