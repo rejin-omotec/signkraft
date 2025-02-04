@@ -61,7 +61,7 @@ def run(screen, player_name, player_age, initial_score, WIDTH, GAME_HEIGHT):
     max_attempts = 3
 
     levels = [
-        {"name": "form", "module": "levels.form", "max_time": 120},
+        # {"name": "form", "module": "levels.form", "max_time": 120},
         {"name": "EchoMatch", "module": "levels.EchoMatch", "max_time": 120},
         {"name": "PicChime", "module": "levels.PicChime", "max_time": 120},
         {"name": "StoryWeave", "module": "levels.StoryWeaver", "max_time": 180},
