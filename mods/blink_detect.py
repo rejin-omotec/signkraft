@@ -93,11 +93,11 @@ class BlinkDetectionThread(threading.Thread):
 
                 if eyes_ratio > self.HIGH_THRESHOLD and not self.eyes_closed:
                     self.eyes_closed = True  # Eyes are now closed
-                    print("Eyes Closed")
+                    # print("Eyes Closed")
 
                 elif eyes_ratio < self.LOW_THRESHOLD and self.eyes_closed:
                     self.eyes_closed = False  # Eyes are now open
-                    print("Eyes Open")
+                    # print("Eyes Open")
                     current_time = time.time()
 
                     # Blink detected
@@ -110,7 +110,7 @@ class BlinkDetectionThread(threading.Thread):
                             # print("Queue is full. Dropping item.")
                             pass
 
-                        print("Double Blink Detected")
+                        # print("Double Blink Detected")
                         blink_detected = True
                     elif current_time - self.last_single_blink_time >= self.COOLDOWN_PERIOD:
 
@@ -122,7 +122,7 @@ class BlinkDetectionThread(threading.Thread):
                             # print("Queue is full. Dropping item.")
                             pass
 
-                        print("Single Blink Detected")
+                        # print("Single Blink Detected")
                         blink_detected = True
                         self.last_single_blink_time = current_time
 

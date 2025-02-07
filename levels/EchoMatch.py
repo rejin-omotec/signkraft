@@ -203,4 +203,5 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     end_time = time.time()-start_time
 
     blink_thread.stop()  # Stop the blink detection thread
+    print(results, end_time)
     return results, end_time

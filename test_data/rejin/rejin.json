@@ -13,20 +13,6 @@
                 "Visuospatial Abilities": 0.48,
                 "Reasoning": 0.39
             }
-        },
-        {
-            "Attempt": 2,
-            "Overall Score": 9.82,
-            "Radar Image": "test_data\\rejin\\attempt_2_radar.png",
-            "Data": {
-                "Memory": 4.23,
-                "Attention": 1.85,
-                "Language Skills": 0.86,
-                "Perception": 1.35,
-                "Executive Functions": 0.66,
-                "Visuospatial Abilities": 0.48,
-                "Reasoning": 0.39
-            }
         }
     ]
 }

@@ -260,6 +260,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     pygame.display.flip()
     pygame.time.wait(2000)
 
+    print("results: ", results, "time: ", end_time)
     return results, end_time
 
 

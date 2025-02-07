@@ -220,6 +220,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     # Initialize results list
     results = [0, 0, 0]
     weights = [2, 3, 5]  # Example weights for increasing difficulty or attempts
+    ques_weights = [0.5, 0.75, 1.25]
+    questions_score = 0
     HIGHLIGHT_COLOR = (200, 200, 200)
     GREEN = (0, 128, 0)
 
@@ -230,7 +232,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Iterate over the stories (max 3 stories)
     for story in selected_stories:
-        if story_attempts >= 3:  # Limit to 3 stories
+        if story_attempts >= max_attempts_arg:  # Limit to 3 stories
             break
 
         title = story["title"]
@@ -344,24 +346,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                         time_taken = time.time() - start_time
                         is_correct = question["options"][selected_option] == question["answer"]
                         if is_correct:
-                            score += 1
-                            results.append({
-                                "Game": "Story Game",
-                                "Weight": weights[story_attempts],
-                                "Correct": 1,
-                                "Incorrect": 0,
-                                "Time Taken": time_taken,
-                                "Max Time": 60
-                            })
+                            questions_score = questions_score + ques_weights[story_attempts]
                         else:
-                            results.append({
-                                "Game": "Story Game",
-                                "Weight": weights[story_attempts],
-                                "Correct": 0,
-                                "Incorrect": 1,
-                                "Time Taken": time_taken,
-                                "Max Time": 60
-                            })
+                            questions_score = questions_score + 0
                         current_question += 1
                         break
                 except queue.Empty:
@@ -388,24 +375,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             time_taken = time.time() - start_time
                             is_correct = question["options"][selected_option] == question["answer"]
                             if is_correct:
-                                score += 1
-                                results.append({
-                                    "Game": "Story Game",
-                                    "Weight": weights[story_attempts],
-                                    "Correct": 1,
-                                    "Incorrect": 0,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                                })
+                                questions_score = questions_score + ques_weights[story_attempts]
                             else:
-                                results.append({
-                                    "Game": "Story Game",
-                                    "Weight": weights[story_attempts],
-                                    "Correct": 0,
-                                    "Incorrect": 1,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                                })
+                                questions_score = questions_score + 0
                             current_question += 1
                             break
                 except queue.Empty:
@@ -431,24 +403,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             time_taken = time.time() - start_time
                             is_correct = question["options"][selected_option] == question["answer"]
                             if is_correct:
-                                score += 1
-                                results.append({
-                                    "Game": "Story Game",
-                                    "Weight": weights[story_attempts],
-                                    "Correct": 1,
-                                    "Incorrect": 0,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                                })
+                                questions_score = questions_score + ques_weights[story_attempts]
                             else:
-                                results.append({
-                                    "Game": "Story Game",
-                                    "Weight": weights[story_attempts],
-                                    "Correct": 0,
-                                    "Incorrect": 1,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                                })
+                                questions_score = questions_score + 0
                             current_question += 1
                             break
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
@@ -457,41 +414,31 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             time_taken = time.time() - start_time
                             is_correct = question["options"][selected_option] == question["answer"]
                             if is_correct:
-                                score += 1
-                                results.append({
-                                    "Game": "Story Game",
-                                    "Weight": weights[story_attempts],
-                                    "Correct": 1,
-                                    "Incorrect": 0,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                                })
+                                questions_score = questions_score + ques_weights[story_attempts]
                             else:
-                                results.append({
-                                    "Game": "Story Game",
-                                    "Weight": weights[story_attempts],
-                                    "Correct": 0,
-                                    "Incorrect": 1,
-                                    "Time Taken": time_taken,
-                                    "Max Time": 60
-                                })
+                                questions_score = questions_score + 0
                             current_question += 1
                             break
                 else:
                     continue
                 break
+        
 
+        # storing the attempt score
+        results[story_attempts] = questions_score
         # Increment story attempts after completing questions
         story_attempts += 1
 
 
         # Display final score for the story
         surface.fill(WHITE)
-        final_score = f"Your score for this story: {score}/{len(questions)}"
-        render_text(surface, final_score, font, BLACK, 50, 50, level_width - 50)
+        # final_score = f"Your score for this story: {score}/{len(questions)}"
+        # render_text(surface, final_score, font, BLACK, 50, 50, level_width - 50)
         pygame.display.update()
-        pygame.time.wait(2000)
+        # pygame.time.wait(2000)
 
     end_time = time.time()-start_time
 
-    return [0,3,5], end_time
+    print("Results:", results, end_time)
+    return results, end_time
+    # return [0,3,5], end_time

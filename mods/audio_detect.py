@@ -67,14 +67,14 @@ class SpeechRecognitionThread(threading.Thread):
                         self.last_result = text
                         self.last_result_time = current_time
                         self.process_text(text)
-                        print(f"Final Recognized ({self.language}): {text}")
+                        # print(f"Final Recognized ({self.language}): {text}")
                 else:
                     partial = eval(self.recognizer.PartialResult()).get("partial", "")
                     if partial and (partial != self.last_result or (current_time - self.last_result_time) > self.result_threshold):
                         self.last_result = partial
                         self.last_result_time = current_time
                         self.process_text(partial)
-                        print(f"Partial Recognized ({self.language}): {partial}")
+                        # print(f"Partial Recognized ({self.language}): {partial}")
 
         except Exception as e:
             print(f"Error in SpeechRecognitionThread: {e}")

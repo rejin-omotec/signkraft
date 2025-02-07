@@ -24,8 +24,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     # Mole settings
     MOLE_SIZE = 50
-    MOLE_APPEAR_TIME = 1.0  # initial time mole stays on screen
-    MOLE_MIN_TIME = 0.4     # minimum time mole stays on screen
+    MOLE_APPEAR_TIME = 1.2  # initial time mole stays on screen
+    MOLE_MIN_TIME = 1       # minimum time mole stays on screen
     SPEED_INCREASE_RATE = 0.85  # Mole appear time decreases by this factor after each mole
 
     # Fonts
@@ -75,8 +75,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         # Instruction text
         instructions = (
             "1. Multiple symbols will be displayed. Pay attention to when the $ sign appears",
-            "2. When the $ symbol appears, blink",
-            "3. Do not blink when any other symbols show"
+            "2. When the $ symbol appears, blink or press eneter to hit the symbol",
+            "3. Do not blink or press enter when any other symbols show"
         )
 
         # Flag to keep the screen running
@@ -117,13 +117,10 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     running = True
     mole_appeared_time = 0
     next_mole_time = 0
-    response_times = []
-    missed_moles = 0
-    correct_hits = 0
-    total_moles = 0
     max_attempts = max_attempts_arg
     attempts = 0
-    results = []  # Store detailed results
+    weights = [2, 3, 5] # Weights for different levels of difficulty
+    results = [0, 0, 0]
 
 
     # Clock
@@ -133,13 +130,13 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     symbol = None
     surface.fill(BLACK)
 
-    reponse_time_sum = 0
-    correct          = 0
-    incorrect        = 0
+    start_time = time.time()
+
+    # Define global flag
+    enter_pressed = False  # Flag to track Enter key state
 
     while running and attempts < max_attempts:
         current_time = time.time()
-        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -147,43 +144,37 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 pygame.quit()
                 return
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if not enter_pressed:  # Only trigger if not already pressed
+                    enter_pressed = True  # Set flag to prevent retriggering
+                
                 # Check if the mole (coin) was clicked
                 if symbol == '$':
-                    hit_time = current_time - mole_appeared_time
-                    response_times.append(hit_time)
-                    correct += 1
-                    reponse_time_sum += hit_time
-
+                    results[attempts] = weights[attempts]
                     symbol = None
                     MOLE_APPEAR_TIME *= SPEED_INCREASE_RATE
                     if MOLE_APPEAR_TIME < MOLE_MIN_TIME:
                         MOLE_APPEAR_TIME = MOLE_MIN_TIME
 
                 else:
-                    attempts +=1
-                    hit_time = current_time - mole_appeared_time
-                    response_times.append(hit_time)
-                    incorrect += 1
-                    reponse_time_sum += hit_time
-
+                    results[attempts] = 0
                     symbol = None
                     MOLE_APPEAR_TIME *= SPEED_INCREASE_RATE
                     if MOLE_APPEAR_TIME < MOLE_MIN_TIME:
                         MOLE_APPEAR_TIME = MOLE_MIN_TIME
 
-
+                attempts +=1
                 surface.fill(BLACK)
+
+            if event.type == pygame.KEYUP and event.key == pygame.K_RETURN:
+                enter_pressed = False  # Reset flag when key is released
 
         # Spawn a new mole if there is none on the screen
         if symbol is None and current_time >= next_mole_time:
             # Ensure mole doesn't spawn in the top reserved area (RESERVED_HEIGHT)
-
             symbol = random.choice(symbols)
-            render_text(surface, symbol, pygame.font.SysFont(None, 100), WHITE, 270, 100, 600)
+            render_text(surface, symbol, pygame.font.SysFont(None, 100), WHITE, 350, 200, 600)
             mole_appeared_time = current_time
-            total_moles += 1
 
         # Remove mole if time exceeded
         if symbol != None and current_time - mole_appeared_time >= MOLE_APPEAR_TIME:
@@ -191,54 +182,28 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             if MOLE_APPEAR_TIME < MOLE_MIN_TIME:
                 MOLE_APPEAR_TIME = MOLE_MIN_TIME
             if symbol == '$':
+                results[attempts] = 0
                 attempts += 1  # Increment attempts when a mole times out
-                incorrect += 1
-            else:
-                
-                correct += 1
-            
 
             symbol = None
             surface.fill(BLACK)
             next_mole_time = current_time + 0.5  # wait 0.5 seconds before next mole
 
-        # Display stats
-        if response_times:
-            avg_response_time = sum(response_times) / len(response_times)
-            response_text = font.render(f"Avg Response Time: {avg_response_time:.2f}s", True, BLACK)
-            surface.blit(response_text, (10, 10))
-        try:
-            accuracy = correct / (correct + incorrect) * 100 if total_moles > 0 else 0
-        except:
-            accuracy = 0
-        accuracy_text = font.render(f"Accuracy: {accuracy:.1f}%", True, WHITE)
-        surface.blit(accuracy_text, (10, 50))
 
         pygame.display.flip()
         clock.tick(60)
 
     # Display final stats before exiting
     surface.fill(WHITE)
-    final_score_text = f"Final Accuracy: {accuracy:.1f}%"
-    render_text_simple(surface, final_score_text, font, BLACK, 50, 50)
     pygame.display.update()
-    pygame.time.wait(2000)
 
-    result = [{
-        "name": "QuickTap",
-        "Weight": 1.0,
-        "Correct": correct,
-        "Incorrect": incorrect,
-        "Average Response Time": reponse_time_sum/(correct + incorrect),
-    }]
+    end_time = time.time()-start_time
 
-    return result, correct
+    print("result:", results, end_time)
+    return results, end_time
 
 
 def render_text_simple(surface, text, font, color, x, y):
     """Helper function to render text to the Pygame surface."""
     text_surface = font.render(text, True, color)
     surface.blit(text_surface, (x, y))
-
-
-# This function `run_game()` can now be used similarly to other levels, passing in a subsurface for it to be rendered within.

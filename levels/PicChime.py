@@ -137,7 +137,8 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     def show_sequence(sequence):
         """Display the sequence of images."""
-        for img in sequence:
+        for i in sequence:
+            img = image_list[i]
             surface.fill((0, 0, 0))
             surface.blit(img, ((level_width - img.get_width()) // 2, (level_height - img.get_height()) // 2))
             pygame.display.update()
@@ -152,7 +153,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         current_index = 0  # Track the currently highlighted image for keyboard navigation
 
         # Shuffle all images for random order in selection screen
-        random.shuffle(all_images)
+        # random.shuffle(all_images)
 
         margin = 20
         num_images = len(all_images)
@@ -262,16 +263,19 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                             running = False
 
         # Return the indices of selected images for later use
+        print("Selected Images:", selected_images)
         return selected_images
 
 
     def calculate_score(sequence, selected_indices):
         """Calculate the player's score based on exact sequence matching."""
-        correct_sequence = [image_list.index(img) for img in sequence]
-        selected_sequence = [all_images[idx] for idx in selected_indices]
+        # correct_sequence = [image_list.index(img) for img in sequence]
+        # selected_sequence = [all_images[idx] for idx in selected_indices]
 
         # Check if the selected sequence matches the displayed sequence exactly
-        return 1 if selected_sequence == correct_sequence else 0
+        # return 1 if selected_sequence == correct_sequence else 0
+        return 1 if selected_indices == sequence else 0
+    
 
 
     # Game variables
@@ -294,7 +298,9 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     while running and attempts < max_attempts:
         # Generate a random sequence from the image list
-        sequence = random.sample(image_list, sequence_length)
+        # sequence = random.sample(image_list, sequence_length)
+        sequence = random.sample(range(len(image_list)), sequence_length)  # Selects indexes instead of images
+        print("Sequence:", sequence)
         show_sequence(sequence)
 
         # Player selects images they recall
@@ -306,14 +312,15 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
         if score == 1:
            results[attempts] = weights[attempts]
 
-        show_message(f'You identified {score}/{sequence_length} images correctly!')
+        # show_message(f'You identified {score}/{sequence_length} images correctly!')
 
         attempts += 1
 
     end_time = time.time()-start_time
 
     # Display final message before quitting the level
-    show_message(f'Final Score: {score}')
+    # show_message(f'Final Score: {score}')
     pygame.time.wait(2000)
 
+    print("Results: ", results, end_time)
     return results, end_time

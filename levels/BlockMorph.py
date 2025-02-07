@@ -321,7 +321,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
 
     end_time = time.time()-start_time
 
-
+    print("Results:", results, end_time)
     return results, end_time
 
 

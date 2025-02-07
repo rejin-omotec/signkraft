@@ -61,7 +61,7 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
     feedback_time = 0
     attempts = 0
     max_attempts = max_attempts_arg
-    weights = [1.0, 1.5, 2.0]  # Increasing weights for each attempt
+    weights = [2, 3, 5]  # Increasing weights for each attempt
     results = [0, 0, 0]
 
     # Prepare all causes for option generation
@@ -79,6 +79,23 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
                 pygame.quit()
                 blink_thread.stop()  # Stop the blink detection thread
                 return
+            
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    selected_option = (selected_option + 1) % len(options)
+                elif event.key == pygame.K_UP:
+                    selected_option = (selected_option - 1) % len(options)
+                elif event.key == pygame.K_RETURN:
+                    if current_index < len(cause_effect_pairs):
+                        correct_cause, effect = cause_effect_pairs[current_index]
+                        if options[selected_option] == correct_cause:
+                            results[attempts] = weights[attempts]
+                            feedback = "Correct!"
+                        else:
+                            feedback = f"Incorrect! The correct cause was: {correct_cause}"
+                        show_feedback = True
+                        feedback_time = pygame.time.get_ticks()
+                        attempts += 1
 
         # Handle blink input
         try:
@@ -172,25 +189,11 @@ def run_game(surface, level_width, level_height, win_width, win_height, max_atte
             # End the game
             running = False
 
-        # # Check if the attempt has exceeded 60 seconds
-        # if time.time() - start_time > 60 and not show_feedback:
-        #     # Record timeout as an incorrect attempt
-        #     results.append({
-        #         "Game": "Cause and Effect",
-        #         "Weight": weights[attempts],
-        #         "Correct": 0,
-        #         "Incorrect": 1,
-        #         "Time Taken": 60,
-        #         "Max Time": 60
-        #     })
-        #     attempts += 1
-        #     current_index += 1
-        #     options_generated = False
-
         pygame.display.update()
         clock.tick(30)
 
     end_time = time.time()-start_time
 
     blink_thread.stop()  # Stop the blink detection thread
+    print("results", results, end_time)
     return results, end_time
